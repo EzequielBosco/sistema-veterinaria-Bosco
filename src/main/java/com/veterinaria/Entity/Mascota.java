@@ -1,8 +1,9 @@
-package com.veterinaria.entity;
+package com.veterinaria.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.veterinaria.entity.enums.EstadoTurno;
+import com.veterinaria.Entity.enums.SexoMascota;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,42 +23,44 @@ import lombok.Setter;
 import lombok.AccessLevel;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "turnos")
+@Table(name = "mascotas")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Turno {
+public class Mascota {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_turno")
+    @Column(name = "id_mascota")
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDate fecha;
+    @Column(nullable = false, length = 100)
+    private String nombre;
 
-    @Column(nullable = false)
-    private LocalTime hora;
+    @Column(nullable = false, length = 50)
+    private String especie;
 
-    @Column(length = 255)
-    private String motivo;
+    @Column(length = 100)
+    private String raza;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('PENDIENTE','CONFIRMADO','CANCELADO','AUSENTE','ATENDIDO') DEFAULT 'PENDIENTE'")
-    private EstadoTurno estado = EstadoTurno.PENDIENTE;
+    @Column(columnDefinition = "ENUM('M','F')")
+    private SexoMascota sexo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_mascota", nullable = false)
-    @JsonBackReference("mascota-turno")
-    private Mascota mascota;
+    @JoinColumn(name = "id_duenio", nullable = false)
+    @JsonBackReference("duenio-mascota")
+    private Duenio duenio;
 
-    @OneToMany(mappedBy = "turno")
-    @JsonManagedReference("turno-participacion")
-    private Set<Participacion> participaciones = new HashSet<>();
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("mascota-turno")
+    private List<Turno> turnos = new ArrayList<>();
 }

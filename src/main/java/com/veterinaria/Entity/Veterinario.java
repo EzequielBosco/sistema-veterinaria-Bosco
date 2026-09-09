@@ -1,7 +1,6 @@
-package com.veterinaria.entity;
+package com.veterinaria.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,33 +15,37 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.AccessLevel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "duenios")
+@Table(name = "veterinarios")
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Duenio extends Persona {
+public class Veterinario extends Persona {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_duenio")
+    @Column(name = "id_veterinario")
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 30)
-    private String cedula;
+    @Column(nullable = false, unique = true, length = 50)
+    private String matricula;
 
-    @OneToMany(mappedBy = "duenio", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("duenio-mascota")
-    private List<Mascota> mascotas = new ArrayList<>();
+    @Column(length = 100)
+    private String especialidad;
 
-    public Duenio(String nombre, String apellido, String telefono, String email, String cedula) {
+    @OneToMany(mappedBy = "veterinario")
+    @JsonManagedReference("veterinario-participacion")
+    private Set<Participacion> participaciones = new HashSet<>();
+
+    public Veterinario(String nombre, String apellido, String telefono, String email, String matricula, String especialidad) {
         super(nombre, apellido, telefono, email);
-        this.cedula = cedula;
+        this.matricula = matricula;
+        this.especialidad = especialidad;
     }
 }

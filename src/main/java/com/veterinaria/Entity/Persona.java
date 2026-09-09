@@ -1,4 +1,4 @@
-package com.veterinaria.entity;
+package com.veterinaria.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

@@ -1,7 +1,7 @@
-package com.veterinaria.entity;
+package com.veterinaria.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.veterinaria.entity.enums.RolVeterinario;
+import com.veterinaria.Entity.enums.RolVeterinario;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,6 +41,6 @@ public class Participacion {
     private Veterinario veterinario;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('PRINCIPAL','ASISTENTE')")
+    @Column(nullable = false, columnDefinition = "ENUM('PRINCIPAL','ASISTENTE','CONSULTOR')")
     private RolVeterinario rol;
 }

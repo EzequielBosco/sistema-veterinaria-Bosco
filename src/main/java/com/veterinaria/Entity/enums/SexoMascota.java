@@ -1,4 +1,4 @@
-package com.veterinaria.entity.enums;
+package com.veterinaria.Entity.enums;
 
 public enum SexoMascota {
     Masculino,
