@@ -1,9 +1,12 @@
 package com.veterinaria.Controller;
 
 import com.veterinaria.Entity.Duenio;
+import com.veterinaria.Entity.Mascota;
+import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.DuplicateResourceException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Service.DuenioService;
+import com.veterinaria.Service.MascotaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +18,11 @@ import java.util.List;
 public class DuenioController {
 
     private final DuenioService duenioService;
+    private final MascotaService mascotaService;
 
-    public DuenioController(DuenioService duenioService) {
+    public DuenioController(DuenioService duenioService, MascotaService mascotaService) {
         this.duenioService = duenioService;
+        this.mascotaService = mascotaService;
     }
 
     @GetMapping
@@ -28,6 +33,11 @@ public class DuenioController {
     @GetMapping("/{id}")
     public ResponseEntity<Duenio> getDuenioById(@PathVariable Long id) {
         return ResponseEntity.ok(duenioService.getDuenioById(id));
+    }
+
+    @GetMapping("/{id}/mascotas")
+    public ResponseEntity<List<Mascota>> getMascotasByDuenioId(@PathVariable Long id) {
+        return ResponseEntity.ok(mascotaService.getMascotasByDuenioId(id));
     }
 
     @GetMapping("/cedula/{cedula}")
@@ -63,6 +73,12 @@ public class DuenioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{duenioId}/mascotas")
+    public ResponseEntity<Mascota> createMascota(@PathVariable Long duenioId, @RequestBody Mascota mascota) {
+        Mascota mascotaCreada = mascotaService.createMascota(duenioId, mascota);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mascotaCreada);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
@@ -71,5 +87,10 @@ public class DuenioController {
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<String> handleDuplicateResource(DuplicateResourceException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequest(BadRequestException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }

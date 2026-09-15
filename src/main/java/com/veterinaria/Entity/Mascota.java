@@ -52,7 +52,7 @@ public class Mascota {
     private LocalDate fechaNacimiento;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('M','F')")
+    @Column(columnDefinition = "ENUM('MACHO','HEMBRA')")
     private SexoMascota sexo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
