@@ -21,7 +21,7 @@ public abstract class Persona {
     @Column(length = 30)
     protected String telefono;
 
-    @Column(length = 150)
+    @Column(length = 150, unique = true)
     private String email;
 
     protected Persona(String nombre, String apellido, String telefono, String email) {
