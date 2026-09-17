@@ -1,6 +1,7 @@
 package com.veterinaria.Service;
 
 import com.veterinaria.Entity.Duenio;
+import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.DuplicateResourceException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Repository.DuenioRepository;
@@ -48,6 +49,7 @@ public class DuenioServiceImpl implements DuenioService {
 
     @Override
     public Duenio createDuenio(Duenio duenio) {
+        validarCamposObligatorios(duenio);
         if (duenioRepository.existsByCedula(duenio.getCedula())) {
             throw new DuplicateResourceException("La cedula/DNI ya esta registrada");
         }
@@ -59,6 +61,7 @@ public class DuenioServiceImpl implements DuenioService {
 
     @Override
     public Duenio updateDuenio(Long id, Duenio duenioActualizado) {
+        validarCamposObligatorios(duenioActualizado);
         Optional<Duenio> duenioExistenteOpt = duenioRepository.findById(id);
         if (duenioExistenteOpt.isEmpty()) {
             throw new ResourceNotFoundException("No existe un duenio con id " + id);
@@ -93,5 +96,13 @@ public class DuenioServiceImpl implements DuenioService {
             throw new ResourceNotFoundException("No existe un duenio con id " + id);
         }
         duenioRepository.delete(duenioOpt.get());
+    }
+
+    private void validarCamposObligatorios(Duenio duenio) {
+        if (duenio.getNombre() == null || duenio.getNombre().isBlank()
+                || duenio.getApellido() == null || duenio.getApellido().isBlank()
+                || duenio.getCedula() == null || duenio.getCedula().isBlank()) {
+            throw new BadRequestException("Debe indicar nombre, apellido y cedula");
+        }
     }
 }

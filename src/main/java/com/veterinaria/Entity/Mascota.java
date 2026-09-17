@@ -1,7 +1,5 @@
 package com.veterinaria.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.veterinaria.Entity.enums.SexoMascota;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,7 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AccessLevel;
@@ -28,7 +26,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "mascotas")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mascota {
@@ -48,6 +47,9 @@ public class Mascota {
     @Column(length = 100)
     private String raza;
 
+    @Column(length = 50)
+    private String color;
+
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
@@ -57,10 +59,8 @@ public class Mascota {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_duenio", nullable = false)
-    @JsonBackReference("duenio-mascota")
     private Duenio duenio;
 
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("mascota-turno")
     private List<Turno> turnos = new ArrayList<>();
 }

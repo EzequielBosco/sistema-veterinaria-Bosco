@@ -1,6 +1,5 @@
 package com.veterinaria.Entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,11 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.AccessLevel;
 
 import java.util.HashSet;
@@ -23,8 +20,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 public class Veterinario extends Persona {
 
     @Id
@@ -40,7 +35,6 @@ public class Veterinario extends Persona {
     private String especialidad;
 
     @OneToMany(mappedBy = "veterinario")
-    @JsonManagedReference("veterinario-participacion")
     private Set<Participacion> participaciones = new HashSet<>();
 
     public Veterinario(String nombre, String apellido, String telefono, String email, String matricula, String especialidad) {

@@ -1,13 +1,13 @@
 {
   "info": {
     "_postman_id": "0b6d85bd-5a40-470c-ac59-268cfdd8524e",
-    "name": "veterinaria Copy",
+    "name": "veterinaria",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "27785539"
   },
   "item": [
     {
-      "name": "http://localhost:8080/api/duenios",
+      "name": "Crear dueño",
       "request": {
         "method": "POST",
         "header": [
@@ -42,7 +42,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios",
+      "name": "Listar dueños",
       "request": {
         "method": "GET",
         "header": [],
@@ -63,12 +63,12 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/5",
+      "name": "Obtener dueño por ID",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/duenios/5",
+          "raw": "http://localhost:8080/api/duenios/1",
           "protocol": "http",
           "host": [
             "localhost"
@@ -77,7 +77,7 @@
           "path": [
             "api",
             "duenios",
-            "5"
+            "1"
           ]
         },
         "description": "Generated from cURL: curl -i http://localhost:8080/api/duenios/1"
@@ -85,7 +85,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/5",
+      "name": "Actualizar dueño",
       "request": {
         "method": "PUT",
         "header": [
@@ -104,7 +104,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/duenios/5",
+          "raw": "http://localhost:8080/api/duenios/1",
           "protocol": "http",
           "host": [
             "localhost"
@@ -113,7 +113,7 @@
           "path": [
             "api",
             "duenios",
-            "5"
+            "1"
           ]
         },
         "description": "Generated from cURL: curl -i -X PUT http://localhost:8080/api/duenios/1 \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"nombre\": \"Juan\",\r\n    \"apellido\": \"Pérez\",\r\n    \"cedula\": \"12345678\",\r\n    \"telefono\": \"0997654321\",\r\n    \"email\": \"juan.perez@example.com\"\r\n  }'"
@@ -121,7 +121,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/4",
+      "name": "Eliminar dueño",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -143,7 +143,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/cedula/012345678",
+      "name": "Obtener dueño por cedula",
       "request": {
         "method": "GET",
         "header": [],
@@ -166,7 +166,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/email/example.com",
+      "name": "Obtener dueño por email",
       "request": {
         "method": "GET",
         "header": [],
@@ -189,7 +189,7 @@
       "response": []
     },
     {
-      "name": "http://localhost:8080/api/duenios/search?nombre=Juan&apellido=Perez",
+      "name": "Buscar dueño por nombre y apellido",
       "request": {
         "method": "GET",
         "header": [],
@@ -322,7 +322,7 @@
       "response": []
     },
     {
-      "name": "Listar mascotas de un duenio",
+      "name": "Listar mascotas de un dueño",
       "request": {
         "method": "GET",
         "header": [],
@@ -345,7 +345,7 @@
       "response": []
     },
     {
-      "name": "Crear mascota con duenio",
+      "name": "Crear mascota con dueño",
       "request": {
         "method": "POST",
         "header": [
@@ -356,7 +356,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"sexo\": \"MACHO\"\r\n}",
+          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"color\": \"Negro\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"sexo\": \"MACHO\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -364,7 +364,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/duenios/5/mascotas",
+          "raw": "http://localhost:8080/api/duenios/1/mascotas",
           "protocol": "http",
           "host": [
             "localhost"
@@ -373,11 +373,360 @@
           "path": [
             "api",
             "duenios",
-            "5",
+            "1",
             "mascotas"
           ]
         },
         "description": "Generated from cURL: curl --location 'http://localhost:8080/api/duenios/5/mascotas' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"sexo\": \"MACHO\"\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "Listar veterinarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios"
+          ]
+        },
+        "description": "Listar todos los veterinarios."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener veterinario por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios",
+            "1"
+          ]
+        },
+        "description": "Obtener un veterinario por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Listar turnos de un veterinario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios/1/turnos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios",
+            "1",
+            "turnos"
+          ]
+        },
+        "description": "Listar los turnos de un veterinario indicando el rol que tuvo en cada turno."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear veterinario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Laura\",\r\n  \"apellido\": \"Gomez\",\r\n  \"matricula\": \"VET-001\",\r\n  \"especialidad\": \"Clinica general\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios"
+          ]
+        },
+        "description": "Crear un veterinario."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar veterinario",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Laura\",\r\n  \"apellido\": \"Gomez\",\r\n  \"matricula\": \"VET-001\",\r\n  \"especialidad\": \"Cirugia\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios",
+            "1"
+          ]
+        },
+        "description": "Actualizar un veterinario por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar veterinario",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/veterinarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "veterinarios",
+            "1"
+          ]
+        },
+        "description": "Eliminar un veterinario por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Listar turnos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos"
+          ]
+        },
+        "description": "Listar todos los turnos."
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar agenda por veterinario y fecha",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos?veterinarioId=1&fecha=2026-09-20",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos"
+          ],
+          "query": [
+            {
+              "key": "veterinarioId",
+              "value": "1"
+            },
+            {
+              "key": "fecha",
+              "value": "2026-09-20"
+            }
+          ]
+        },
+        "description": "Buscar turnos de un veterinario para una fecha."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener turno por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1"
+          ]
+        },
+        "description": "Obtener un turno por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Listar veterinarios de un turno",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1/veterinarios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1",
+            "veterinarios"
+          ]
+        },
+        "description": "Listar los veterinarios que participaron en un turno indicando el rol de cada uno."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear turno",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"fecha\": \"2026-09-20\",\r\n  \"hora\": \"10:30:00\",\r\n  \"motivo\": \"Consulta general\",\r\n  \"mascotaId\": 1,\r\n  \"veterinarioIds\": [1, 2]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/turnos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos"
+          ]
+        },
+        "description": "Crear un turno. Requiere que existan la mascota y los veterinarios indicados."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar turno",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"fecha\": \"2026-09-20\",\r\n  \"hora\": \"11:00:00\",\r\n  \"motivo\": \"Control\",\r\n  \"mascotaId\": 1,\r\n  \"veterinarioIds\": [1, 2]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1"
+          ]
+        },
+        "description": "Actualizar un turno por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar turno",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1"
+          ]
+        },
+        "description": "Eliminar un turno por ID."
       },
       "response": []
     }

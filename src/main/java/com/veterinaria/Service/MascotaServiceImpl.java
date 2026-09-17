@@ -1,5 +1,6 @@
 package com.veterinaria.Service;
 
+import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.Entity.Duenio;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Exception.BadRequestException;
@@ -45,18 +46,17 @@ public class MascotaServiceImpl implements MascotaService {
     }
 
     @Override
-    public Mascota updateMascota(Long id, Mascota mascotaActualizada) {
+    public Mascota updateMascota(Long id, MascotaRequestDTO mascotaActualizada) {
         Mascota mascotaExistente = getMascotaById(id);
 
         mascotaExistente.setNombre(mascotaActualizada.getNombre());
         mascotaExistente.setEspecie(mascotaActualizada.getEspecie());
         mascotaExistente.setRaza(mascotaActualizada.getRaza());
+        mascotaExistente.setColor(mascotaActualizada.getColor());
         mascotaExistente.setFechaNacimiento(mascotaActualizada.getFechaNacimiento());
-        mascotaExistente.setSexo(mascotaActualizada.getSexo());
 
-        Long duenioId = mascotaActualizada.getDuenio() != null ? mascotaActualizada.getDuenio().getId() : null;
-        if (duenioId != null) {
-            mascotaExistente.setDuenio(validarDuenioExistente(duenioId));
+        if (mascotaActualizada.getDuenioId() != null) {
+            mascotaExistente.setDuenio(validarDuenioExistente(mascotaActualizada.getDuenioId()));
         }
 
         return mascotaRepository.save(mascotaExistente);

@@ -1,8 +1,7 @@
 package com.veterinaria.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.veterinaria.Entity.enums.EstadoTurno;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AccessLevel;
@@ -28,7 +27,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "turnos")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Turno {
@@ -54,10 +54,8 @@ public class Turno {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_mascota", nullable = false)
-    @JsonBackReference("mascota-turno")
     private Mascota mascota;
 
-    @OneToMany(mappedBy = "turno")
-    @JsonManagedReference("turno-participacion")
+    @OneToMany(mappedBy = "turno", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participacion> participaciones = new HashSet<>();
 }

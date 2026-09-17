@@ -1,5 +1,6 @@
 package com.veterinaria.Service;
 
+import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.Entity.Mascota;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface MascotaService {
 
     Mascota createMascota(Long duenioId, Mascota mascota);
 
-    Mascota updateMascota(Long id, Mascota mascotaActualizada);
+    Mascota updateMascota(Long id, MascotaRequestDTO mascotaActualizada);
 
     void deleteMascota(Long id);
 }

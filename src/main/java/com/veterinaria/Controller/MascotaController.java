@@ -1,8 +1,10 @@
 package com.veterinaria.Controller;
 
-import com.veterinaria.Entity.Mascota;
+import com.veterinaria.DTO.MascotaRequestDTO;
+import com.veterinaria.DTO.MascotaResponseDTO;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.MascotaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,24 +24,28 @@ import java.util.List;
 public class MascotaController {
 
     private final MascotaService mascotaService;
+    private final MascotaMapper mascotaMapper;
 
-    public MascotaController(MascotaService mascotaService) {
+    public MascotaController(MascotaService mascotaService, MascotaMapper mascotaMapper) {
         this.mascotaService = mascotaService;
+        this.mascotaMapper = mascotaMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<Mascota>> getAllMascotas() {
-        return ResponseEntity.ok(mascotaService.getAllMascotas());
+    public ResponseEntity<List<MascotaResponseDTO>> getAllMascotas() {
+        return ResponseEntity.ok(mascotaMapper.toResponseDtoList(mascotaService.getAllMascotas()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mascota> getMascotaById(@PathVariable Long id) {
-        return ResponseEntity.ok(mascotaService.getMascotaById(id));
+    public ResponseEntity<MascotaResponseDTO> getMascotaById(@PathVariable Long id) {
+        return ResponseEntity.ok(mascotaMapper.toResponseDto(mascotaService.getMascotaById(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Mascota> updateMascota(@PathVariable Long id, @RequestBody Mascota mascota) {
-        return ResponseEntity.ok(mascotaService.updateMascota(id, mascota));
+    public ResponseEntity<MascotaResponseDTO> updateMascota(
+            @PathVariable Long id,
+            @RequestBody MascotaRequestDTO mascotaRequestDTO) {
+        return ResponseEntity.ok(mascotaMapper.toResponseDto(mascotaService.updateMascota(id, mascotaRequestDTO)));
     }
 
     @DeleteMapping("/{id}")
