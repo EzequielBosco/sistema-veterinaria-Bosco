@@ -2,7 +2,7 @@ package com.veterinaria.Mapper;
 
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
-import com.veterinaria.DTO.TurnoVeterinarioDTO;
+import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 import com.veterinaria.Entity.Participacion;
 import com.veterinaria.Entity.Turno;
 import org.mapstruct.Mapper;
@@ -26,7 +26,7 @@ public interface TurnoMapper {
 
     List<TurnoResponseDTO> toDtoList(List<Turno> turnos);
 
-    default List<TurnoVeterinarioDTO> obtenerVeterinarios(Turno turno) {
+    default List<TurnoVeterinarioResponseDTO> obtenerVeterinarios(Turno turno) {
         if (turno == null || turno.getParticipaciones() == null) {
             return List.of();
         }
@@ -35,7 +35,7 @@ public interface TurnoMapper {
                 .sorted(Comparator
                         .comparing(Participacion::getRol)
                         .thenComparing(participacion -> participacion.getVeterinario().getId()))
-                .map(participacion -> new TurnoVeterinarioDTO(
+                .map(participacion -> new TurnoVeterinarioResponseDTO(
                         participacion.getVeterinario().getId(),
                         formatearNombreVeterinario(participacion),
                         participacion.getRol()))

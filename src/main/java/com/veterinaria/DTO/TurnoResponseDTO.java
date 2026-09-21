@@ -20,5 +20,5 @@ public class TurnoResponseDTO {
     private String motivo;
     private EstadoTurno estado;
     private String mascotaNombre;
-    private List<TurnoVeterinarioDTO> veterinarios;
+    private List<TurnoVeterinarioResponseDTO> veterinarios;
 }

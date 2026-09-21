@@ -2,16 +2,13 @@ package com.veterinaria.Controller;
 
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
-import com.veterinaria.DTO.TurnoVeterinarioDTO;
-import com.veterinaria.Exception.BadRequestException;
-import com.veterinaria.Exception.DuplicateResourceException;
-import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 import com.veterinaria.Service.TurnoService;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,19 +47,19 @@ public class TurnoController {
     }
 
     @GetMapping("/{id}/veterinarios")
-    public ResponseEntity<List<TurnoVeterinarioDTO>> getVeterinariosByTurno(@PathVariable Long id) {
+    public ResponseEntity<List<TurnoVeterinarioResponseDTO>> getVeterinariosByTurno(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.getVeterinariosByTurno(id));
     }
 
     @PostMapping
-    public ResponseEntity<TurnoResponseDTO> createTurno(@RequestBody TurnoRequestDTO turnoRequestDTO) {
+    public ResponseEntity<TurnoResponseDTO> createTurno(@Valid @RequestBody TurnoRequestDTO turnoRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(turnoService.createTurno(turnoRequestDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TurnoResponseDTO> updateTurno(
             @PathVariable Long id,
-            @RequestBody TurnoRequestDTO turnoRequestDTO) {
+            @Valid @RequestBody TurnoRequestDTO turnoRequestDTO) {
         return ResponseEntity.ok(turnoService.updateTurno(id, turnoRequestDTO));
     }
 
@@ -70,20 +67,5 @@ public class TurnoController {
     public ResponseEntity<Void> deleteTurno(@PathVariable Long id) {
         turnoService.deleteTurno(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<String> handleDuplicateResource(DuplicateResourceException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }

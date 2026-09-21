@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VeterinarioTurnoDTO {
+public class VeterinarioTurnoResponseDTO {
 
     private Long id;
     private LocalDate fecha;

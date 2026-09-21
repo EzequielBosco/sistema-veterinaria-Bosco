@@ -2,14 +2,11 @@ package com.veterinaria.Controller;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.DTO.MascotaResponseDTO;
-import com.veterinaria.Exception.BadRequestException;
-import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.MascotaService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,7 +41,7 @@ public class MascotaController {
     @PutMapping("/{id}")
     public ResponseEntity<MascotaResponseDTO> updateMascota(
             @PathVariable Long id,
-            @RequestBody MascotaRequestDTO mascotaRequestDTO) {
+            @Valid @RequestBody MascotaRequestDTO mascotaRequestDTO) {
         return ResponseEntity.ok(mascotaMapper.toResponseDto(mascotaService.updateMascota(id, mascotaRequestDTO)));
     }
 
@@ -52,15 +49,5 @@ public class MascotaController {
     public ResponseEntity<Void> deleteMascota(@PathVariable Long id) {
         mascotaService.deleteMascota(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }

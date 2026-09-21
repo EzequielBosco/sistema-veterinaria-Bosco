@@ -2,15 +2,15 @@ package com.veterinaria.Service;
 
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
-import com.veterinaria.DTO.TurnoVeterinarioDTO;
+import com.veterinaria.DTO.TurnoVeterinarioRequestDTO;
+import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.Participacion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
-import com.veterinaria.Entity.enums.RolVeterinario;
 import com.veterinaria.Exception.BadRequestException;
-import com.veterinaria.Exception.DuplicateResourceException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Exception.TurnoSuperpuestoException;
 import com.veterinaria.Mapper.TurnoMapper;
 import com.veterinaria.Repository.MascotaRepository;
 import com.veterinaria.Repository.ParticipacionRepository;
@@ -20,11 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Service
 public class TurnoServiceImpl implements TurnoService {
@@ -76,8 +75,8 @@ public class TurnoServiceImpl implements TurnoService {
     public TurnoResponseDTO createTurno(TurnoRequestDTO turnoRequestDTO) {
         validarRequest(turnoRequestDTO);
         Mascota mascota = obtenerMascota(turnoRequestDTO.getMascotaId());
-        List<Veterinario> veterinarios = obtenerVeterinarios(turnoRequestDTO);
-        validarDisponibilidad(veterinarios, turnoRequestDTO, null);
+        Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios = obtenerVeterinarios(turnoRequestDTO);
+        validarDisponibilidad(veterinarios.values().stream().toList(), turnoRequestDTO, null);
 
         Turno turno = turnoMapper.toEntity(turnoRequestDTO);
         turno.setMascota(mascota);
@@ -93,8 +92,8 @@ public class TurnoServiceImpl implements TurnoService {
         validarRequest(turnoRequestDTO);
         Turno turno = obtenerTurno(id);
         Mascota mascota = obtenerMascota(turnoRequestDTO.getMascotaId());
-        List<Veterinario> veterinarios = obtenerVeterinarios(turnoRequestDTO);
-        validarDisponibilidad(veterinarios, turnoRequestDTO, id);
+        Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios = obtenerVeterinarios(turnoRequestDTO);
+        validarDisponibilidad(veterinarios.values().stream().toList(), turnoRequestDTO, id);
 
         turno.setFecha(turnoRequestDTO.getFecha());
         turno.setHora(turnoRequestDTO.getHora());
@@ -107,7 +106,7 @@ public class TurnoServiceImpl implements TurnoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TurnoVeterinarioDTO> getVeterinariosByTurno(Long id) {
+    public List<TurnoVeterinarioResponseDTO> getVeterinariosByTurno(Long id) {
         obtenerTurno(id);
         return participacionRepository.findByTurnoId(id).stream()
                 .sorted(Comparator
@@ -126,12 +125,29 @@ public class TurnoServiceImpl implements TurnoService {
     private void validarRequest(TurnoRequestDTO turnoRequestDTO) {
         if (turnoRequestDTO.getFecha() == null
                 || turnoRequestDTO.getHora() == null
-                || turnoRequestDTO.getMascotaId() == null) {
-            throw new BadRequestException("Debe indicar fecha, hora y mascotaId");
+                || turnoRequestDTO.getMascotaId() == null
+                || turnoRequestDTO.getMotivo() == null
+                || turnoRequestDTO.getMotivo().isBlank()) {
+            throw new BadRequestException("Debe indicar fecha, hora, motivo y mascotaId");
         }
 
-        if (obtenerVeterinarioIds(turnoRequestDTO).isEmpty()) {
-            throw new BadRequestException("Debe indicar al menos un veterinario en veterinarioIds");
+        if (turnoRequestDTO.getVeterinarios() == null || turnoRequestDTO.getVeterinarios().isEmpty()) {
+            throw new BadRequestException("Debe indicar al menos un veterinario");
+        }
+
+        if (turnoRequestDTO.getVeterinarios().stream().anyMatch(veterinario -> veterinario == null
+                || veterinario.getVeterinarioId() == null
+                || veterinario.getRol() == null)) {
+            throw new BadRequestException("Debe indicar veterinarioId y rol para cada veterinario");
+        }
+
+        long cantidadVeterinariosUnicos = turnoRequestDTO.getVeterinarios().stream()
+                .map(TurnoVeterinarioRequestDTO::getVeterinarioId)
+                .distinct()
+                .count();
+
+        if (cantidadVeterinariosUnicos != turnoRequestDTO.getVeterinarios().size()) {
+            throw new BadRequestException("No se puede repetir el mismo veterinario en un turno");
         }
     }
 
@@ -150,21 +166,16 @@ public class TurnoServiceImpl implements TurnoService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un veterinario con id " + veterinarioId));
     }
 
-    private List<Veterinario> obtenerVeterinarios(TurnoRequestDTO turnoRequestDTO) {
-        return obtenerVeterinarioIds(turnoRequestDTO).stream()
-                .map(this::validarVeterinario)
-                .toList();
-    }
+    private Map<TurnoVeterinarioRequestDTO, Veterinario> obtenerVeterinarios(TurnoRequestDTO turnoRequestDTO) {
+        Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios = new LinkedHashMap<>();
 
-    private List<Long> obtenerVeterinarioIds(TurnoRequestDTO turnoRequestDTO) {
-        Set<Long> veterinarioIds = new LinkedHashSet<>();
-
-        if (turnoRequestDTO.getVeterinarioIds() != null) {
-            veterinarioIds.addAll(turnoRequestDTO.getVeterinarioIds());
+        for (TurnoVeterinarioRequestDTO veterinarioRequestDTO : turnoRequestDTO.getVeterinarios()) {
+            veterinarios.put(
+                    veterinarioRequestDTO,
+                    validarVeterinario(veterinarioRequestDTO.getVeterinarioId()));
         }
 
-        veterinarioIds.remove(null);
-        return new ArrayList<>(veterinarioIds);
+        return veterinarios;
     }
 
     private void validarDisponibilidad(
@@ -179,30 +190,30 @@ public class TurnoServiceImpl implements TurnoService {
                             veterinario.getId(), turnoRequestDTO.getFecha(), turnoRequestDTO.getHora(), turnoId);
 
             if (ocupado) {
-                throw new DuplicateResourceException(
+                throw new TurnoSuperpuestoException(
                         "El veterinario con id " + veterinario.getId() + " ya tiene un turno en esa fecha y hora");
             }
         }
     }
 
-    private void asignarParticipaciones(Turno turno, List<Veterinario> veterinarios) {
-        for (int i = 0; i < veterinarios.size(); i++) {
+    private void asignarParticipaciones(Turno turno, Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios) {
+        for (Map.Entry<TurnoVeterinarioRequestDTO, Veterinario> entry : veterinarios.entrySet()) {
             Participacion participacion = new Participacion();
             participacion.setTurno(turno);
-            participacion.setVeterinario(veterinarios.get(i));
-            participacion.setRol(i == 0 ? RolVeterinario.PRINCIPAL : RolVeterinario.ASISTENTE);
+            participacion.setVeterinario(entry.getValue());
+            participacion.setRol(entry.getKey().getRol());
             turno.getParticipaciones().add(participacion);
         }
     }
 
-    private void reemplazarParticipaciones(Turno turno, List<Veterinario> veterinarios) {
+    private void reemplazarParticipaciones(Turno turno, Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios) {
         turno.getParticipaciones().clear();
         asignarParticipaciones(turno, veterinarios);
     }
 
-    private TurnoVeterinarioDTO toTurnoVeterinarioDto(Participacion participacion) {
+    private TurnoVeterinarioResponseDTO toTurnoVeterinarioDto(Participacion participacion) {
         Veterinario veterinario = participacion.getVeterinario();
-        return new TurnoVeterinarioDTO(
+        return new TurnoVeterinarioResponseDTO(
                 veterinario.getId(),
                 formatearNombreVeterinario(veterinario),
                 participacion.getRol());

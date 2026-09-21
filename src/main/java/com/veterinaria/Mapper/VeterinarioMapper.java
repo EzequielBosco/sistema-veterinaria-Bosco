@@ -14,8 +14,6 @@ public interface VeterinarioMapper {
     VeterinarioResponseDTO toResponseDto(Veterinario veterinario);
 
     @Mapping(target = "participaciones", ignore = true)
-    @Mapping(target = "telefono", ignore = true)
-    @Mapping(target = "email", ignore = true)
     Veterinario toEntity(VeterinarioRequestDTO veterinarioRequestDTO);
 
     List<VeterinarioResponseDTO> toResponseDtoList(List<Veterinario> veterinarios);

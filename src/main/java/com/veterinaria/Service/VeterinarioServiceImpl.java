@@ -2,7 +2,7 @@ package com.veterinaria.Service;
 
 import com.veterinaria.DTO.VeterinarioRequestDTO;
 import com.veterinaria.DTO.VeterinarioResponseDTO;
-import com.veterinaria.DTO.VeterinarioTurnoDTO;
+import com.veterinaria.DTO.VeterinarioTurnoResponseDTO;
 import com.veterinaria.Entity.Participacion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
@@ -46,6 +46,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
     @Override
     public VeterinarioResponseDTO createVeterinario(VeterinarioRequestDTO veterinarioRequestDTO) {
         validarMatriculaDisponible(veterinarioRequestDTO.getMatricula());
+        validarEmailDisponible(veterinarioRequestDTO.getEmail());
         Veterinario veterinario = veterinarioMapper.toEntity(veterinarioRequestDTO);
         return veterinarioMapper.toResponseDto(veterinarioRepository.save(veterinario));
     }
@@ -58,8 +59,15 @@ public class VeterinarioServiceImpl implements VeterinarioService {
             validarMatriculaDisponible(veterinarioRequestDTO.getMatricula());
         }
 
+        if (veterinarioRequestDTO.getEmail() != null
+                && !veterinarioRequestDTO.getEmail().equals(veterinario.getEmail())) {
+            validarEmailDisponible(veterinarioRequestDTO.getEmail());
+        }
+
         veterinario.setNombre(veterinarioRequestDTO.getNombre());
         veterinario.setApellido(veterinarioRequestDTO.getApellido());
+        veterinario.setTelefono(veterinarioRequestDTO.getTelefono());
+        veterinario.setEmail(veterinarioRequestDTO.getEmail());
         veterinario.setMatricula(veterinarioRequestDTO.getMatricula());
         veterinario.setEspecialidad(veterinarioRequestDTO.getEspecialidad());
 
@@ -68,7 +76,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VeterinarioTurnoDTO> getTurnosByVeterinario(Long id) {
+    public List<VeterinarioTurnoResponseDTO> getTurnosByVeterinario(Long id) {
         obtenerVeterinario(id);
         return participacionRepository.findByVeterinarioId(id).stream()
                 .sorted(Comparator
@@ -95,9 +103,15 @@ public class VeterinarioServiceImpl implements VeterinarioService {
         }
     }
 
-    private VeterinarioTurnoDTO toVeterinarioTurnoDto(Participacion participacion) {
+    private void validarEmailDisponible(String email) {
+        if (email != null && veterinarioRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("El email ya esta registrado");
+        }
+    }
+
+    private VeterinarioTurnoResponseDTO toVeterinarioTurnoDto(Participacion participacion) {
         Turno turno = participacion.getTurno();
-        return new VeterinarioTurnoDTO(
+        return new VeterinarioTurnoResponseDTO(
                 turno.getId(),
                 turno.getFecha(),
                 turno.getHora(),

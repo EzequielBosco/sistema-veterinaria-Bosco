@@ -2,14 +2,12 @@ package com.veterinaria.Controller;
 
 import com.veterinaria.DTO.VeterinarioRequestDTO;
 import com.veterinaria.DTO.VeterinarioResponseDTO;
-import com.veterinaria.DTO.VeterinarioTurnoDTO;
-import com.veterinaria.Exception.DuplicateResourceException;
-import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.DTO.VeterinarioTurnoResponseDTO;
 import com.veterinaria.Service.VeterinarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,20 +39,20 @@ public class VeterinarioController {
     }
 
     @GetMapping("/{id}/turnos")
-    public ResponseEntity<List<VeterinarioTurnoDTO>> getTurnosByVeterinario(@PathVariable Long id) {
+    public ResponseEntity<List<VeterinarioTurnoResponseDTO>> getTurnosByVeterinario(@PathVariable Long id) {
         return ResponseEntity.ok(veterinarioService.getTurnosByVeterinario(id));
     }
 
     @PostMapping
     public ResponseEntity<VeterinarioResponseDTO> createVeterinario(
-            @RequestBody VeterinarioRequestDTO veterinarioRequestDTO) {
+            @Valid @RequestBody VeterinarioRequestDTO veterinarioRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(veterinarioService.createVeterinario(veterinarioRequestDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<VeterinarioResponseDTO> updateVeterinario(
             @PathVariable Long id,
-            @RequestBody VeterinarioRequestDTO veterinarioRequestDTO) {
+            @Valid @RequestBody VeterinarioRequestDTO veterinarioRequestDTO) {
         return ResponseEntity.ok(veterinarioService.updateVeterinario(id, veterinarioRequestDTO));
     }
 
@@ -62,15 +60,5 @@ public class VeterinarioController {
     public ResponseEntity<Void> deleteVeterinario(@PathVariable Long id) {
         veterinarioService.deleteVeterinario(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<String> handleDuplicateResource(DuplicateResourceException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }

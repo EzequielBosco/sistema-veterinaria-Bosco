@@ -2,7 +2,7 @@ package com.veterinaria.Service;
 
 import com.veterinaria.DTO.VeterinarioRequestDTO;
 import com.veterinaria.DTO.VeterinarioResponseDTO;
-import com.veterinaria.DTO.VeterinarioTurnoDTO;
+import com.veterinaria.DTO.VeterinarioTurnoResponseDTO;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface VeterinarioService {
 
     VeterinarioResponseDTO updateVeterinario(Long id, VeterinarioRequestDTO veterinarioRequestDTO);
 
-    List<VeterinarioTurnoDTO> getTurnosByVeterinario(Long id);
+    List<VeterinarioTurnoResponseDTO> getTurnosByVeterinario(Long id);
 
     void deleteVeterinario(Long id);
 }

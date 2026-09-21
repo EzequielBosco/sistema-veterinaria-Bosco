@@ -2,7 +2,7 @@ package com.veterinaria.Service;
 
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
-import com.veterinaria.DTO.TurnoVeterinarioDTO;
+import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +19,7 @@ public interface TurnoService {
 
     TurnoResponseDTO updateTurno(Long id, TurnoRequestDTO turnoRequestDTO);
 
-    List<TurnoVeterinarioDTO> getVeterinariosByTurno(Long id);
+    List<TurnoVeterinarioResponseDTO> getVeterinariosByTurno(Long id);
 
     void deleteTurno(Long id);
 }

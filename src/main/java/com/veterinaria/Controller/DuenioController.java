@@ -4,13 +4,11 @@ import com.veterinaria.DTO.DuenioRequestDTO;
 import com.veterinaria.DTO.DuenioResponseDTO;
 import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.DTO.MascotaResponseDTO;
-import com.veterinaria.Exception.BadRequestException;
-import com.veterinaria.Exception.DuplicateResourceException;
-import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Mapper.DuenioMapper;
 import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.DuenioService;
 import com.veterinaria.Service.MascotaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +68,7 @@ public class DuenioController {
     }
 
     @PostMapping
-    public ResponseEntity<DuenioResponseDTO> createDuenio(@RequestBody DuenioRequestDTO duenioRequestDTO) {
+    public ResponseEntity<DuenioResponseDTO> createDuenio(@Valid @RequestBody DuenioRequestDTO duenioRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(duenioMapper.toResponseDto(duenioService.createDuenio(duenioMapper.toEntity(duenioRequestDTO))));
     }
@@ -78,7 +76,7 @@ public class DuenioController {
     @PutMapping("/{id}")
     public ResponseEntity<DuenioResponseDTO> updateDuenio(
             @PathVariable Long id,
-            @RequestBody DuenioRequestDTO duenioRequestDTO) {
+            @Valid @RequestBody DuenioRequestDTO duenioRequestDTO) {
         return ResponseEntity.ok(duenioMapper.toResponseDto(
                 duenioService.updateDuenio(id, duenioMapper.toEntity(duenioRequestDTO))));
     }
@@ -92,24 +90,9 @@ public class DuenioController {
     @PostMapping("/{duenioId}/mascotas")
     public ResponseEntity<MascotaResponseDTO> createMascota(
             @PathVariable Long duenioId,
-            @RequestBody MascotaRequestDTO mascotaRequestDTO) {
+            @Valid @RequestBody MascotaRequestDTO mascotaRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(mascotaMapper.toResponseDto(
                         mascotaService.createMascota(duenioId, mascotaMapper.toEntity(mascotaRequestDTO))));
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<String> handleDuplicateResource(DuplicateResourceException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }

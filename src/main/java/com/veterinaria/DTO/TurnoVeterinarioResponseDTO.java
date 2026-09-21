@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TurnoVeterinarioDTO {
+public class TurnoVeterinarioResponseDTO {
 
     private Long id;
     private String nombreApellido;
