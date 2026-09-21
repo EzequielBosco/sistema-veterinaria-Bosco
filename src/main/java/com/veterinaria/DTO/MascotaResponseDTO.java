@@ -1,5 +1,6 @@
 package com.veterinaria.DTO;
 
+import com.veterinaria.Entity.enums.SexoMascota;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class MascotaResponseDTO {
     private String especie;
     private String raza;
     private String color;
+    private SexoMascota sexo;
     private LocalDate fechaNacimiento;
     private Long duenioId;
     private String duenioNombre;

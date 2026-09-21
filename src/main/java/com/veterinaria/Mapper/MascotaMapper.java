@@ -17,7 +17,6 @@ public interface MascotaMapper {
 
     @Mapping(target = "duenio", ignore = true)
     @Mapping(target = "turnos", ignore = true)
-    @Mapping(target = "sexo", ignore = true)
     Mascota toEntity(MascotaRequestDTO mascotaRequestDTO);
 
     List<MascotaResponseDTO> toResponseDtoList(List<Mascota> mascotas);

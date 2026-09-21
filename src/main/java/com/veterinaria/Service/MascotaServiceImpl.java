@@ -53,6 +53,7 @@ public class MascotaServiceImpl implements MascotaService {
         mascotaExistente.setEspecie(mascotaActualizada.getEspecie());
         mascotaExistente.setRaza(mascotaActualizada.getRaza());
         mascotaExistente.setColor(mascotaActualizada.getColor());
+        mascotaExistente.setSexo(mascotaActualizada.getSexo());
         mascotaExistente.setFechaNacimiento(mascotaActualizada.getFechaNacimiento());
 
         if (mascotaActualizada.getDuenioId() != null) {

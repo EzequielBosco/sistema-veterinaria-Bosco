@@ -101,8 +101,9 @@ public class DuenioServiceImpl implements DuenioService {
     private void validarCamposObligatorios(Duenio duenio) {
         if (duenio.getNombre() == null || duenio.getNombre().isBlank()
                 || duenio.getApellido() == null || duenio.getApellido().isBlank()
-                || duenio.getCedula() == null || duenio.getCedula().isBlank()) {
-            throw new BadRequestException("Debe indicar nombre, apellido y cedula");
+                || duenio.getCedula() == null || duenio.getCedula().isBlank()
+                || duenio.getTelefono() == null || duenio.getTelefono().isBlank()) {
+            throw new BadRequestException("Debe indicar nombre, apellido, cedula y telefono");
         }
     }
 }

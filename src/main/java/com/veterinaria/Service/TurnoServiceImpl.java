@@ -8,6 +8,7 @@ import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.Participacion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
+import com.veterinaria.Entity.enums.RolVeterinario;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Exception.TurnoSuperpuestoException;
@@ -148,6 +149,14 @@ public class TurnoServiceImpl implements TurnoService {
 
         if (cantidadVeterinariosUnicos != turnoRequestDTO.getVeterinarios().size()) {
             throw new BadRequestException("No se puede repetir el mismo veterinario en un turno");
+        }
+
+        long cantidadPrincipales = turnoRequestDTO.getVeterinarios().stream()
+                .filter(veterinario -> RolVeterinario.PRINCIPAL.equals(veterinario.getRol()))
+                .count();
+
+        if (cantidadPrincipales != 1) {
+            throw new BadRequestException("Debe indicar exactamente un veterinario con rol PRINCIPAL");
         }
     }
 

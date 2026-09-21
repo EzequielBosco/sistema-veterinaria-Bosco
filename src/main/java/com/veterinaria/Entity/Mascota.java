@@ -50,11 +50,11 @@ public class Mascota {
     @Column(length = 50)
     private String color;
 
-    @Column(name = "fecha_nacimiento")
+    @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('MACHO','HEMBRA')")
+    @Column(nullable = false, columnDefinition = "ENUM('MACHO','HEMBRA')")
     private SexoMascota sexo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

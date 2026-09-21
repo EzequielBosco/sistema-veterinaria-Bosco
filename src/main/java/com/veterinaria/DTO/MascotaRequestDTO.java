@@ -1,5 +1,6 @@
 package com.veterinaria.DTO;
 
+import com.veterinaria.Entity.enums.SexoMascota;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -23,6 +24,9 @@ public class MascotaRequestDTO {
 
     private String raza;
     private String color;
+
+    @NotNull(message = "El sexo es obligatorio")
+    private SexoMascota sexo;
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @PastOrPresent(message = "La fecha de nacimiento no puede ser futura")

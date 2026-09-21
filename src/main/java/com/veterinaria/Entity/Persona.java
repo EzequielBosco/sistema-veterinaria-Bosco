@@ -18,7 +18,7 @@ public abstract class Persona {
     @Column(nullable = false, length = 100)
     protected String apellido;
 
-    @Column(length = 30)
+    @Column(nullable = false, length = 30)
     protected String telefono;
 
     @Column(length = 150, unique = true)

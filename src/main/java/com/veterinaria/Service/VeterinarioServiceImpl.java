@@ -6,6 +6,7 @@ import com.veterinaria.DTO.VeterinarioTurnoResponseDTO;
 import com.veterinaria.Entity.Participacion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
+import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.DuplicateResourceException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Mapper.VeterinarioMapper;
@@ -45,6 +46,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
 
     @Override
     public VeterinarioResponseDTO createVeterinario(VeterinarioRequestDTO veterinarioRequestDTO) {
+        validarCamposObligatorios(veterinarioRequestDTO);
         validarMatriculaDisponible(veterinarioRequestDTO.getMatricula());
         validarEmailDisponible(veterinarioRequestDTO.getEmail());
         Veterinario veterinario = veterinarioMapper.toEntity(veterinarioRequestDTO);
@@ -53,6 +55,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
 
     @Override
     public VeterinarioResponseDTO updateVeterinario(Long id, VeterinarioRequestDTO veterinarioRequestDTO) {
+        validarCamposObligatorios(veterinarioRequestDTO);
         Veterinario veterinario = obtenerVeterinario(id);
 
         if (!veterinario.getMatricula().equals(veterinarioRequestDTO.getMatricula())) {
@@ -106,6 +109,16 @@ public class VeterinarioServiceImpl implements VeterinarioService {
     private void validarEmailDisponible(String email) {
         if (email != null && veterinarioRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("El email ya esta registrado");
+        }
+    }
+
+    private void validarCamposObligatorios(VeterinarioRequestDTO veterinarioRequestDTO) {
+        if (veterinarioRequestDTO.getNombre() == null || veterinarioRequestDTO.getNombre().isBlank()
+                || veterinarioRequestDTO.getApellido() == null || veterinarioRequestDTO.getApellido().isBlank()
+                || veterinarioRequestDTO.getTelefono() == null || veterinarioRequestDTO.getTelefono().isBlank()
+                || veterinarioRequestDTO.getMatricula() == null || veterinarioRequestDTO.getMatricula().isBlank()
+                || veterinarioRequestDTO.getEspecialidad() == null || veterinarioRequestDTO.getEspecialidad().isBlank()) {
+            throw new BadRequestException("Debe indicar nombre, apellido, telefono, matricula y especialidad");
         }
     }
 

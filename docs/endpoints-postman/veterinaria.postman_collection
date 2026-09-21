@@ -275,7 +275,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Mestizo\",\r\n  \"color\": \"Negro\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"duenioId\": 1\r\n}",
+          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Mestizo\",\r\n  \"color\": \"Negro\",\r\n  \"sexo\": \"MACHO\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"duenioId\": 1\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -356,7 +356,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"color\": \"Negro\",\r\n  \"fechaNacimiento\": \"2020-05-10\"\r\n}",
+          "raw": "{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"color\": \"Negro\",\r\n  \"sexo\": \"MACHO\",\r\n  \"fechaNacimiento\": \"2020-05-10\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -377,7 +377,7 @@
             "mascotas"
           ]
         },
-        "description": "Generated from cURL: curl --location 'http://localhost:8080/api/duenios/5/mascotas' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n  \"nombre\": \"Firulais\",\r\n  \"especie\": \"Perro\",\r\n  \"raza\": \"Labrador\",\r\n  \"fechaNacimiento\": \"2020-05-10\",\r\n  \"sexo\": \"MACHO\"\r\n}'"
+        "description": "Crear una mascota para el duenio indicado. Requiere nombre, especie, sexo y fechaNacimiento no futura."
       },
       "response": []
     },
@@ -668,7 +668,7 @@
             "turnos"
           ]
         },
-        "description": "Crear un turno. Requiere fecha y hora futuras, motivo, mascota existente y veterinarios existentes. Cada veterinario debe indicar su rol: PRINCIPAL, ASISTENTE o CONSULTOR."
+        "description": "Crear un turno. Requiere fecha y hora futuras, motivo, mascota existente y veterinarios existentes. Cada veterinario debe indicar su rol: PRINCIPAL, ASISTENTE o CONSULTOR. Debe haber exactamente un PRINCIPAL."
       },
       "response": []
     },
