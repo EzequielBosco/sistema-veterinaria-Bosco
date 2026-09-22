@@ -68,6 +68,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(CupoMascotasExcedidoException.class)
+    public ResponseEntity<ErrorResponse> handleCupoMascotasExcedido(
+            CupoMascotasExcedidoException exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(
             NoResourceFoundException exception,

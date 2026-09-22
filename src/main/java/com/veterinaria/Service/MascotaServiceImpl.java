@@ -5,6 +5,7 @@ import com.veterinaria.DTO.MascotaResponseDTO;
 import com.veterinaria.Entity.Duenio;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Exception.BadRequestException;
+import com.veterinaria.Exception.CupoMascotasExcedidoException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Repository.DuenioRepository;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @Service
 public class MascotaServiceImpl implements MascotaService {
+
+    private static final int MAX_MASCOTAS_POR_DUENIO = 5;
 
     private final MascotaRepository mascotaRepository;
     private final DuenioRepository duenioRepository;
@@ -49,6 +52,7 @@ public class MascotaServiceImpl implements MascotaService {
     public MascotaResponseDTO createMascota(Long duenioId, MascotaRequestDTO mascotaRequestDTO) {
         Mascota mascota = mascotaMapper.toEntity(mascotaRequestDTO);
         mascota.setDuenio(obtenerDuenioObligatorio(duenioId));
+        validarCupoMascotas(duenioId);
         return mascotaMapper.toResponseDto(mascotaRepository.save(mascota));
     }
 
@@ -87,6 +91,15 @@ public class MascotaServiceImpl implements MascotaService {
         }
 
         return validarDuenioExistente(duenioId);
+    }
+
+    private void validarCupoMascotas(Long duenioId) {
+        long cantidadMascotas = mascotaRepository.countByDuenioId(duenioId);
+        if (cantidadMascotas >= MAX_MASCOTAS_POR_DUENIO) {
+            throw new CupoMascotasExcedidoException(
+                    "El duenio con id " + duenioId + " ya tiene " + cantidadMascotas
+                            + " mascotas activas. El limite es de " + MAX_MASCOTAS_POR_DUENIO + " mascotas por duenio");
+        }
     }
 
     private Duenio validarDuenioExistente(Long duenioId) {

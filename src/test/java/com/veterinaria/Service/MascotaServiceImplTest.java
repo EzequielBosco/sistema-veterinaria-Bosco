@@ -6,6 +6,7 @@ import com.veterinaria.Entity.Duenio;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.enums.SexoMascota;
 import com.veterinaria.Exception.BadRequestException;
+import com.veterinaria.Exception.CupoMascotasExcedidoException;
 import com.veterinaria.Exception.ResourceNotFoundException;
 import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Repository.DuenioRepository;
@@ -120,6 +121,38 @@ class MascotaServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class, () -> mascotaService.createMascota(99L, request));
         verify(mascotaRepository, never()).save(any(Mascota.class));
+    }
+
+    @Test
+    void createMascota_conDuenioEnLimiteDeMascotas_lanzaCupoMascotasExcedidoExceptionYNoGuarda() {
+        Duenio duenio = new Duenio("Ana", "Gomez", "1122334455", null, "12345678");
+        MascotaRequestDTO request = crearRequest(null);
+        when(mascotaMapper.toEntity(request)).thenReturn(crearMascota());
+        when(duenioRepository.findById(1L)).thenReturn(Optional.of(duenio));
+        when(mascotaRepository.countByDuenioId(1L)).thenReturn(5L);
+
+        CupoMascotasExcedidoException exception =
+                assertThrows(CupoMascotasExcedidoException.class, () -> mascotaService.createMascota(1L, request));
+        assertThat(exception.getMessage())
+                .contains("duenio con id 1")
+                .contains("limite es de 5");
+        verify(mascotaRepository, never()).save(any(Mascota.class));
+    }
+
+    @Test
+    void createMascota_conDuenioDebajoDelLimite_guardaMascota() {
+        Duenio duenio = new Duenio("Ana", "Gomez", "1122334455", null, "12345678");
+        MascotaRequestDTO request = crearRequest(null);
+        Mascota mascota = crearMascota();
+        when(mascotaMapper.toEntity(request)).thenReturn(mascota);
+        when(duenioRepository.findById(1L)).thenReturn(Optional.of(duenio));
+        when(mascotaRepository.countByDuenioId(1L)).thenReturn(4L);
+        when(mascotaRepository.save(mascota)).thenReturn(mascota);
+        when(mascotaMapper.toResponseDto(mascota)).thenReturn(crearResponse());
+
+        mascotaService.createMascota(1L, request);
+
+        verify(mascotaRepository).save(mascota);
     }
 
     @Test

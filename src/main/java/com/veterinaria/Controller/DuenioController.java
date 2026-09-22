@@ -146,13 +146,16 @@ public class DuenioController {
 
     @Operation(
         summary = "Registrar mascota para un dueño",
-        description = "Crea una nueva mascota asociada al dueño indicado. El sexo debe ser MACHO o HEMBRA y la fecha de nacimiento no puede ser futura"
+        description = "Crea una nueva mascota asociada al dueño indicado. El sexo debe ser MACHO o HEMBRA y la fecha de nacimiento no puede ser futura. " +
+            "Un dueño puede tener como máximo 5 mascotas activas"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Mascota creada exitosamente"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos (falla de validación)",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Dueño no encontrado",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "422", description = "El dueño ya alcanzó el límite de 5 mascotas activas",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/{duenioId}/mascotas")
