@@ -68,7 +68,11 @@ public class MascotaServiceImpl implements MascotaService {
         mascotaExistente.setFechaNacimiento(mascotaRequestDTO.getFechaNacimiento());
 
         if (mascotaRequestDTO.getDuenioId() != null) {
-            mascotaExistente.setDuenio(validarDuenioExistente(mascotaRequestDTO.getDuenioId()));
+            Duenio duenioNuevo = validarDuenioExistente(mascotaRequestDTO.getDuenioId());
+            if (esCambioDeDuenio(mascotaExistente, mascotaRequestDTO.getDuenioId())) {
+                validarCupoMascotas(mascotaRequestDTO.getDuenioId());
+            }
+            mascotaExistente.setDuenio(duenioNuevo);
         }
 
         return mascotaMapper.toResponseDto(mascotaRepository.save(mascotaExistente));
@@ -91,6 +95,10 @@ public class MascotaServiceImpl implements MascotaService {
         }
 
         return validarDuenioExistente(duenioId);
+    }
+
+    private boolean esCambioDeDuenio(Mascota mascota, Long duenioIdNuevo) {
+        return mascota.getDuenio() == null || !duenioIdNuevo.equals(mascota.getDuenio().getId());
     }
 
     private void validarCupoMascotas(Long duenioId) {

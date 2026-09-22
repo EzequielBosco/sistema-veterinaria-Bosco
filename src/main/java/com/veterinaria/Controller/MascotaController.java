@@ -53,13 +53,16 @@ public class MascotaController {
 
     @Operation(
         summary = "Actualizar mascota",
-        description = "Modifica los datos de una mascota existente. El sexo debe ser MACHO o HEMBRA y la fecha de nacimiento no puede ser futura"
+        description = "Modifica los datos de una mascota existente. El sexo debe ser MACHO o HEMBRA y la fecha de nacimiento no puede ser futura. " +
+            "Si se cambia el dueño, el nuevo dueño no puede superar el límite de 5 mascotas activas"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Mascota actualizada exitosamente"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos (falla de validación)",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Mascota o dueño no encontrado",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "422", description = "El nuevo dueño ya alcanzó el límite de 5 mascotas activas",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id}")

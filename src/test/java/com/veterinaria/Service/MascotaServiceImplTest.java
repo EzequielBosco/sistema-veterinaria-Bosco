@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -197,6 +198,36 @@ class MascotaServiceImplTest {
     }
 
     @Test
+    void updateMascota_cambiandoADuenioEnLimite_lanzaCupoMascotasExcedidoExceptionYNoGuarda() {
+        Mascota mascota = crearMascota();
+        mascota.setDuenio(crearDuenioConId(1L));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
+        when(duenioRepository.findById(2L)).thenReturn(Optional.of(crearDuenioConId(2L)));
+        when(mascotaRepository.countByDuenioId(2L)).thenReturn(5L);
+
+        CupoMascotasExcedidoException exception =
+                assertThrows(CupoMascotasExcedidoException.class, () -> mascotaService.updateMascota(1L, crearRequest(2L)));
+        assertThat(exception.getMessage()).contains("duenio con id 2");
+        verify(mascotaRepository, never()).save(any(Mascota.class));
+    }
+
+    @Test
+    void updateMascota_mismoDuenioEnLimite_noValidaCupoYGuarda() {
+        Duenio duenio = crearDuenioConId(1L);
+        Mascota mascota = crearMascota();
+        mascota.setDuenio(duenio);
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
+        when(duenioRepository.findById(1L)).thenReturn(Optional.of(duenio));
+        when(mascotaRepository.save(mascota)).thenReturn(mascota);
+        when(mascotaMapper.toResponseDto(mascota)).thenReturn(crearResponse());
+
+        mascotaService.updateMascota(1L, crearRequest(1L));
+
+        verify(mascotaRepository, never()).countByDuenioId(any());
+        verify(mascotaRepository).save(mascota);
+    }
+
+    @Test
     void updateMascota_cuandoMascotaNoExiste_lanzaResourceNotFoundExceptionYNoGuarda() {
         when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -241,6 +272,12 @@ class MascotaServiceImplTest {
         mascota.setSexo(SexoMascota.HEMBRA);
         mascota.setFechaNacimiento(LocalDate.of(2020, 1, 10));
         return mascota;
+    }
+
+    private Duenio crearDuenioConId(Long id) {
+        Duenio duenio = new Duenio("Ana", "Gomez", "1122334455", null, "12345678");
+        ReflectionTestUtils.setField(duenio, "id", id);
+        return duenio;
     }
 
     private MascotaRequestDTO crearRequest(Long duenioId) {
