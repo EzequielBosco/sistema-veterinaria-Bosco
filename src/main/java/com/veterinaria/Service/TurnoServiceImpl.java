@@ -135,8 +135,8 @@ public class TurnoServiceImpl implements TurnoService {
             throw new BadRequestException("Debe indicar fecha, hora, duracion, motivo y mascotaId");
         }
 
-        if (turnoRequestDTO.getDuracionMinutos() < 1) {
-            throw new BadRequestException("La duracion debe ser de al menos 1 minuto");
+        if (turnoRequestDTO.getDuracionMinutos() < 10) {
+            throw new BadRequestException("La duracion debe ser de al menos 10 minutos");
         }
 
         if (turnoRequestDTO.getVeterinarios() == null || turnoRequestDTO.getVeterinarios().isEmpty()) {
