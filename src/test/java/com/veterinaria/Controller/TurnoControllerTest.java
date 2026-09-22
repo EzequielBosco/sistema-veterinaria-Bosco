@@ -208,6 +208,7 @@ class TurnoControllerTest {
                 "Consulta general",
                 30,
                 EstadoTurno.PENDIENTE,
+                10L,
                 "Luna",
                 List.of(new TurnoVeterinarioResponseDTO(1L, "Laura Suarez", RolVeterinario.PRINCIPAL)));
     }

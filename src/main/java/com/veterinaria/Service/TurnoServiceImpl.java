@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TurnoServiceImpl implements TurnoService {
@@ -245,14 +246,19 @@ public class TurnoServiceImpl implements TurnoService {
             TurnoRequestDTO turnoRequestDTO,
             Long turnoId) {
         for (Veterinario veterinario : veterinarios) {
-            if (tieneTurnoSuperpuesto(veterinario.getId(), turnoRequestDTO, turnoId)) {
-                throw new TurnoSuperpuestoException(
-                        "El veterinario con id " + veterinario.getId() + " ya tiene un turno en esa fecha y hora");
-            }
+            buscarTurnoSuperpuesto(veterinario.getId(), turnoRequestDTO, turnoId)
+                    .ifPresent(conflictivo -> {
+                        throw new TurnoSuperpuestoException(
+                                "El veterinario con id " + veterinario.getId()
+                                        + " ya tiene asignado el turno con id " + conflictivo.getId()
+                                        + " el " + conflictivo.getFecha()
+                                        + " de " + conflictivo.getHora()
+                                        + " a " + conflictivo.getHora().plusMinutes(conflictivo.getDuracionMinutos()));
+                    });
         }
     }
 
-    private boolean tieneTurnoSuperpuesto(Long veterinarioId, TurnoRequestDTO turnoRequestDTO, Long turnoId) {
+    private Optional<Turno> buscarTurnoSuperpuesto(Long veterinarioId, TurnoRequestDTO turnoRequestDTO, Long turnoId) {
         LocalTime inicioNuevo = turnoRequestDTO.getHora();
         LocalTime finNuevo = inicioNuevo.plusMinutes(turnoRequestDTO.getDuracionMinutos());
 
@@ -261,11 +267,12 @@ public class TurnoServiceImpl implements TurnoService {
                         turnoRequestDTO.getFecha())
                 .stream()
                 .filter(turno -> turnoId == null || !turnoId.equals(turno.getId()))
-                .anyMatch(turno -> {
+                .filter(turno -> {
                     LocalTime inicioExistente = turno.getHora();
                     LocalTime finExistente = inicioExistente.plusMinutes(turno.getDuracionMinutos());
                     return inicioExistente.isBefore(finNuevo) && inicioNuevo.isBefore(finExistente);
-                });
+                })
+                .findFirst();
     }
 
     private void asignarParticipaciones(Turno turno, Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios) {

@@ -107,7 +107,7 @@ public class TurnoController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Mascota o veterinario no encontrado",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-        @ApiResponse(responseCode = "409", description = "El turno se superpone con otro turno del veterinario",
+        @ApiResponse(responseCode = "409", description = "El turno se superpone con otro turno del veterinario. El mensaje indica el ID y horario del turno conflictivo",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping

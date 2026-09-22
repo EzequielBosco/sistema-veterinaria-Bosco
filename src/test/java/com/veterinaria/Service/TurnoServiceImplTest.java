@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -133,6 +134,7 @@ class TurnoServiceImplTest {
                 request.getMotivo(),
                 request.getDuracionMinutos(),
                 EstadoTurno.PENDIENTE,
+                10L,
                 "Luna",
                 List.of());
 
@@ -158,11 +160,16 @@ class TurnoServiceImplTest {
 
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(mascota));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        Turno turnoExistente = crearTurnoExistente(request.getFecha(), LocalTime.of(10, 15), 30);
+        Turno turnoExistente = crearTurnoExistente(7L, request.getFecha(), LocalTime.of(10, 15), 30);
         when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
                 .thenReturn(List.of(turnoExistente));
 
-        assertThrows(TurnoSuperpuestoException.class, () -> turnoService.createTurno(request));
+        TurnoSuperpuestoException exception =
+                assertThrows(TurnoSuperpuestoException.class, () -> turnoService.createTurno(request));
+        assertThat(exception.getMessage())
+                .contains("turno con id 7")
+                .contains(request.getFecha().toString())
+                .contains("de 10:15 a 10:45");
         verify(turnoRepository, never()).save(any(Turno.class));
     }
 
@@ -234,11 +241,16 @@ class TurnoServiceImplTest {
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(new Mascota()));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        Turno turnoExistente = crearTurnoExistente(request.getFecha(), LocalTime.of(10, 15), 30);
+        Turno turnoExistente = crearTurnoExistente(7L, request.getFecha(), LocalTime.of(10, 15), 30);
         when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
                 .thenReturn(List.of(turnoExistente));
 
-        assertThrows(TurnoSuperpuestoException.class, () -> turnoService.updateTurno(1L, request));
+        TurnoSuperpuestoException exception =
+                assertThrows(TurnoSuperpuestoException.class, () -> turnoService.updateTurno(1L, request));
+        assertThat(exception.getMessage())
+                .contains("turno con id 7")
+                .contains(request.getFecha().toString())
+                .contains("de 10:15 a 10:45");
         verify(turnoRepository, never()).save(any(Turno.class));
     }
 
@@ -305,12 +317,14 @@ class TurnoServiceImplTest {
                 request.getMotivo(),
                 request.getDuracionMinutos(),
                 EstadoTurno.PENDIENTE,
+                10L,
                 "Luna",
                 List.of());
     }
 
-    private Turno crearTurnoExistente(LocalDate fecha, LocalTime hora, Integer duracionMinutos) {
+    private Turno crearTurnoExistente(Long id, LocalDate fecha, LocalTime hora, Integer duracionMinutos) {
         Turno turno = new Turno();
+        ReflectionTestUtils.setField(turno, "id", id);
         turno.setFecha(fecha);
         turno.setHora(hora);
         turno.setDuracionMinutos(duracionMinutos);
