@@ -33,6 +33,9 @@ public class TurnoResponseDTO {
     @Schema(description = "Estado actual del turno", example = "PENDIENTE")
     private EstadoTurno estado;
 
+    @Schema(description = "ID de la mascota que asiste al turno", example = "1")
+    private Long mascotaId;
+
     @Schema(description = "Nombre de la mascota que asiste al turno", example = "Firulais")
     private String mascotaNombre;
 

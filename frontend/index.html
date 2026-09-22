@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica Veterinaria · Patitas Felices</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+
+  <!-- Bootstrap 5 CSS via CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    /* ── Apple-like design tokens ───────────────────────────── */
+    :root {
+      --apple-blue:    #007AFF;
+      --apple-green:   #34C759;
+      --apple-red:     #FF3B30;
+      --apple-orange:  #FF9500;
+      --apple-bg:      #F5F5F7;
+      --apple-surface: #FFFFFF;
+      --apple-border:  #D1D1D6;
+      --apple-text:    #1D1D1F;
+      --apple-muted:   #6E6E73;
+      --radius-card:   18px;
+      --radius-btn:    12px;
+      --shadow-card:   0 2px 12px rgba(0,0,0,.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                   "Segoe UI", Roboto, sans-serif;
+      background: var(--apple-bg);
+      color: var(--apple-text);
+      font-size: .9375rem;
+    }
+
+    /* ── Navbar ─────────────────────────────────────────────── */
+    .app-navbar {
+      background: rgba(255,255,255,.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--apple-border);
+      padding: .75rem 0;
+    }
+    .app-navbar .brand {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--apple-text);
+      letter-spacing: -.3px;
+    }
+
+    /* ── Tabs ────────────────────────────────────────────────── */
+    .nav-tabs { border-bottom: 1px solid var(--apple-border); }
+    .nav-tabs .nav-link {
+      color: var(--apple-muted);
+      border: none;
+      border-radius: var(--radius-btn) var(--radius-btn) 0 0;
+      padding: .55rem 1.1rem;
+      font-weight: 500;
+      transition: color .15s;
+    }
+    .nav-tabs .nav-link:hover  { color: var(--apple-blue); background: transparent; }
+    .nav-tabs .nav-link.active {
+      color: var(--apple-blue);
+      background: var(--apple-surface);
+      border-bottom: 2px solid var(--apple-blue);
+      font-weight: 600;
+    }
+
+    /* ── Cards / panels ─────────────────────────────────────── */
+    .apple-card {
+      background: var(--apple-surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--apple-border);
+      padding: 1.5rem;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────── */
+    .table { margin: 0; }
+    .table thead th {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--apple-muted);
+      border-bottom: 1px solid var(--apple-border);
+      background: transparent;
+      padding: .6rem .75rem;
+    }
+    .table tbody td {
+      vertical-align: middle;
+      padding: .7rem .75rem;
+      border-color: #F0F0F2;
+      font-size: .9rem;
+    }
+    .table tbody tr:hover { background: #F5F5F7; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn { border-radius: var(--radius-btn); font-weight: 500; }
+    .btn-apple {
+      background: var(--apple-blue);
+      color: #fff;
+      border: none;
+    }
+    .btn-apple:hover { background: #0066d6; color: #fff; }
+    .btn-icon {
+      padding: .25rem .5rem;
+      border-radius: 8px;
+      font-size: .8rem;
+      line-height: 1.4;
+    }
+
+    /* ── Form controls ───────────────────────────────────────── */
+    .form-control, .form-select {
+      border-radius: 10px;
+      border-color: var(--apple-border);
+      font-size: .9rem;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--apple-blue);
+      box-shadow: 0 0 0 3px rgba(0,122,255,.15);
+    }
+    .form-label { font-size: .85rem; font-weight: 500; color: var(--apple-muted); margin-bottom: .3rem; }
+
+    /* ── Modals ───────────────────────────────────────────────── */
+    .modal-content {
+      border-radius: var(--radius-card);
+      border: 1px solid var(--apple-border);
+      box-shadow: 0 8px 40px rgba(0,0,0,.15);
+    }
+    .modal-header {
+      border-bottom: 1px solid var(--apple-border);
+      padding: 1.1rem 1.4rem .9rem;
+    }
+    .modal-title { font-weight: 600; font-size: 1rem; }
+    .modal-footer { border-top: 1px solid var(--apple-border); }
+
+    /* ── Badges ───────────────────────────────────────────────── */
+    .badge-estado {
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .3em .7em;
+      border-radius: 20px;
+    }
+    .badge-PENDIENTE  { background:#FFF3CD; color:#856404; }
+    .badge-CONFIRMADO { background:#D1E7DD; color:#0A3622; }
+    .badge-ATENDIDO   { background:#D0E4FF; color:#0A3669; }
+    .badge-CANCELADO  { background:#F8D7DA; color:#58151C; }
+    .badge-AUSENTE    { background:#E2E3E5; color:#41464B; }
+
+    /* ── Vet-row inside turno form ───────────────────────────── */
+    .vet-row {
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .vet-row select { flex: 1; }
+    .vet-row .rol-select { width: 140px; flex-shrink: 0; }
+
+    /* ── Section title ────────────────────────────────────────── */
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    /* ── Toast ────────────────────────────────────────────────── */
+    .toast-container { z-index: 2000; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ NAVBAR ════════════════════════════════════ -->
+<nav class="app-navbar sticky-top">
+  <div class="container d-flex align-items-center gap-2">
+    <span style="font-size:1.5rem">🐾</span>
+    <span class="brand">Clínica Veterinaria · Patitas Felices</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════ TOAST ═════════════════════════════════════ -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast align-items-center text-white border-0" role="alert">
+    <div class="d-flex">
+      <div id="toastMsg" class="toast-body fw-semibold"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MAIN ══════════════════════════════════════ -->
+<div class="container py-4">
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDuenios">Dueños</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabMascotas">Mascotas</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabVeterinarios">Veterinarios</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabTurnos">Turnos</button></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ══════════════════════ TAB DUEÑOS ══════════════════════ -->
+    <div class="tab-pane fade show active" id="tabDuenios">
+      <div class="apple-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-title">Dueños</span>
+          <button class="btn btn-apple btn-sm" data-bs-toggle="modal" data-bs-target="#modalDuenio" onclick="abrirModalDuenio()">
+            + Nuevo dueño
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Teléfono</th><th>Email</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyDuenios"><tr><td colspan="7" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TAB MASCOTAS ═════════════════════ -->
+    <div class="tab-pane fade" id="tabMascotas">
+      <div class="apple-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-title">Mascotas</span>
+          <button class="btn btn-apple btn-sm" data-bs-toggle="modal" data-bs-target="#modalMascota" onclick="abrirModalMascota()">
+            + Nueva mascota
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Especie</th><th>Raza</th><th>Color</th><th>Sexo</th><th>Nacimiento</th><th>Dueño</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyMascotas"><tr><td colspan="8" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TAB VETERINARIOS ═════════════════ -->
+    <div class="tab-pane fade" id="tabVeterinarios">
+      <div class="apple-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-title">Veterinarios</span>
+          <button class="btn btn-apple btn-sm" data-bs-toggle="modal" data-bs-target="#modalVeterinario" onclick="abrirModalVeterinario()">
+            + Nuevo veterinario
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Apellido</th><th>Matrícula</th><th>Especialidad</th><th>Teléfono</th><th>Email</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyVeterinarios"><tr><td colspan="8" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TAB TURNOS ═══════════════════════ -->
+    <div class="tab-pane fade" id="tabTurnos">
+      <div class="apple-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-title">Turnos</span>
+          <button class="btn btn-apple btn-sm" data-bs-toggle="modal" data-bs-target="#modalTurno" onclick="abrirModalTurno()">
+            + Nuevo turno
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Fecha</th><th>Hora</th><th>Mascota</th><th>Motivo</th><th>Duración</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyTurnos"><tr><td colspan="8" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+</div><!-- /container -->
+
+
+<!-- ═══════════════════════════ MODAL DUEÑO ═══════════════════════════════════════ -->
+<div class="modal fade" id="modalDuenio" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formDuenio" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDuenioTitulo">Nuevo dueño</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="errDuenio" class="alert alert-danger d-none py-2 small"></div>
+          <input type="hidden" id="duenioId" />
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="dNombre" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Apellido *</label>
+              <input type="text" class="form-control" id="dApellido" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">DNI *</label>
+              <input type="text" class="form-control" id="dCedula" placeholder="7 u 8 dígitos" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Teléfono *</label>
+              <input type="text" class="form-control" id="dTelefono" placeholder="+54 11 1234-5678" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="dEmail" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-apple">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL MASCOTA ═════════════════════════════════════ -->
+<div class="modal fade" id="modalMascota" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formMascota" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalMascotaTitulo">Nueva mascota</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="errMascota" class="alert alert-danger d-none py-2 small"></div>
+          <input type="hidden" id="mascotaId" />
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="mNombre" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Especie *</label>
+              <input type="text" class="form-control" id="mEspecie" placeholder="Perro, Gato…" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Raza</label>
+              <input type="text" class="form-control" id="mRaza" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Color</label>
+              <input type="text" class="form-control" id="mColor" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Sexo *</label>
+              <select class="form-select" id="mSexo" required>
+                <option value="">Seleccionar…</option>
+                <option value="MACHO">Macho</option>
+                <option value="HEMBRA">Hembra</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Fecha de nacimiento *</label>
+              <input type="date" class="form-control" id="mFechaNacimiento" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Dueño *</label>
+              <select class="form-select" id="mDuenioId" required>
+                <option value="">Seleccionar dueño…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-apple">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL VETERINARIO ════════════════════════════════ -->
+<div class="modal fade" id="modalVeterinario" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formVeterinario" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalVeterinarioTitulo">Nuevo veterinario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="errVeterinario" class="alert alert-danger d-none py-2 small"></div>
+          <input type="hidden" id="veterinarioId" />
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="vNombre" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Apellido *</label>
+              <input type="text" class="form-control" id="vApellido" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Matrícula *</label>
+              <input type="text" class="form-control" id="vMatricula" placeholder="MV-0000" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Especialidad *</label>
+              <input type="text" class="form-control" id="vEspecialidad" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Teléfono *</label>
+              <input type="text" class="form-control" id="vTelefono" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="vEmail" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-apple">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL TURNO ══════════════════════════════════════ -->
+<div class="modal fade" id="modalTurno" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <form id="formTurno" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTurnoTitulo">Nuevo turno</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="errTurno" class="alert alert-danger d-none py-2 small"></div>
+          <input type="hidden" id="turnoId" />
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha *</label>
+              <input type="date" class="form-control" id="tFecha" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Hora *</label>
+              <input type="time" class="form-control" id="tHora" required />
+            </div>
+            <div class="col-8">
+              <label class="form-label">Motivo *</label>
+              <input type="text" class="form-control" id="tMotivo" required />
+            </div>
+            <div class="col-4">
+              <label class="form-label">Duración (min) *</label>
+              <input type="number" class="form-control" id="tDuracion" min="10" value="30" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Mascota *</label>
+              <select class="form-select" id="tMascotaId" required>
+                <option value="">Seleccionar mascota…</option>
+              </select>
+            </div>
+
+            <!-- Veterinarios dinámicos -->
+            <div class="col-12">
+              <label class="form-label">Veterinarios * <small class="text-muted">(exactamente 1 PRINCIPAL)</small></label>
+              <div id="vetRows"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm mt-1" onclick="agregarVetRow()">
+                + Agregar veterinario
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-apple">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap 5 JS bundle (incluye Popper) via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════ CONFIG ═══════════════════════════════════ */
+const API = "http://localhost:8080/api";
+
+/* ═══════════════════════════════════ TOAST ════════════════════════════════════ */
+function toast(msg, ok = true) {
+  const el = document.getElementById("toast");
+  const msgEl = document.getElementById("toastMsg");
+  el.classList.remove("bg-success", "bg-danger");
+  el.classList.add(ok ? "bg-success" : "bg-danger");
+  msgEl.textContent = msg;
+  bootstrap.Toast.getOrCreateInstance(el, { delay: 3500 }).show();
+}
+
+/* ═══════════════════════════════════ FETCH HELPERS ════════════════════════════ */
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json", ...options.headers },
+    ...options
+  });
+  if (res.status === 204) return null;
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    // Usar el campo "mensaje" del ErrorResponse del backend
+    const msg = data?.mensaje || data?.message || `Error ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function esc(v) {
+  if (v == null) return "—";
+  return String(v)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function mostrarError(elId, msg) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.classList.remove("d-none");
+}
+function ocultarError(elId) {
+  document.getElementById(elId).classList.add("d-none");
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   DUEÑOS
+════════════════════════════════════════════════════════════════════════════════ */
+let dueniosCache = [];
+
+async function cargarDuenios() {
+  try {
+    dueniosCache = await apiFetch(`${API}/duenios`);
+    renderDuenios(dueniosCache);
+  } catch(e) {
+    document.getElementById("tbodyDuenios").innerHTML =
+      `<tr><td colspan="7" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+function renderDuenios(lista) {
+  const tbody = document.getElementById("tbodyDuenios");
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Sin dueños registrados.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(d => `
+    <tr>
+      <td class="text-muted">${d.id}</td>
+      <td>${esc(d.nombre)}</td>
+      <td>${esc(d.apellido)}</td>
+      <td><code>${esc(d.cedula)}</code></td>
+      <td>${esc(d.telefono)}</td>
+      <td>${esc(d.email)}</td>
+      <td class="text-end">
+        <button class="btn btn-outline-primary btn-icon me-1" onclick="editarDuenio(${d.id})">Editar</button>
+        <button class="btn btn-outline-danger btn-icon" onclick="eliminarDuenio(${d.id})">Eliminar</button>
+      </td>
+    </tr>`).join("");
+}
+
+function abrirModalDuenio() {
+  document.getElementById("modalDuenioTitulo").textContent = "Nuevo dueño";
+  document.getElementById("formDuenio").reset();
+  document.getElementById("duenioId").value = "";
+  ocultarError("errDuenio");
+}
+
+async function editarDuenio(id) {
+  try {
+    const d = await apiFetch(`${API}/duenios/${id}`);
+    document.getElementById("modalDuenioTitulo").textContent = "Editar dueño";
+    document.getElementById("duenioId").value   = d.id;
+    document.getElementById("dNombre").value    = d.nombre   ?? "";
+    document.getElementById("dApellido").value  = d.apellido ?? "";
+    document.getElementById("dCedula").value    = d.cedula   ?? "";
+    document.getElementById("dTelefono").value  = d.telefono ?? "";
+    document.getElementById("dEmail").value     = d.email    ?? "";
+    ocultarError("errDuenio");
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalDuenio")).show();
+  } catch(e) { toast(e.message, false); }
+}
+
+document.getElementById("formDuenio").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errDuenio");
+  const id = document.getElementById("duenioId").value;
+  const body = {
+    nombre:   document.getElementById("dNombre").value.trim(),
+    apellido: document.getElementById("dApellido").value.trim(),
+    cedula:   document.getElementById("dCedula").value.trim(),
+    telefono: document.getElementById("dTelefono").value.trim(),
+    email:    document.getElementById("dEmail").value.trim() || null
+  };
+  try {
+    if (id) {
+      await apiFetch(`${API}/duenios/${id}`, { method: "PUT", body: JSON.stringify(body) });
+      toast("Dueño actualizado correctamente.");
+    } else {
+      await apiFetch(`${API}/duenios`, { method: "POST", body: JSON.stringify(body) });
+      toast("Dueño registrado correctamente.");
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modalDuenio")).hide();
+    await cargarDuenios();
+  } catch(e) { mostrarError("errDuenio", e.message); }
+});
+
+async function eliminarDuenio(id) {
+  if (!confirm("¿Eliminar este dueño?")) return;
+  try {
+    await apiFetch(`${API}/duenios/${id}`, { method: "DELETE" });
+    toast("Dueño eliminado.");
+    await cargarDuenios();
+  } catch(e) { toast(e.message, false); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   MASCOTAS
+════════════════════════════════════════════════════════════════════════════════ */
+async function cargarMascotas() {
+  try {
+    const lista = await apiFetch(`${API}/mascotas`);
+    renderMascotas(lista);
+  } catch(e) {
+    document.getElementById("tbodyMascotas").innerHTML =
+      `<tr><td colspan="8" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+function renderMascotas(lista) {
+  const tbody = document.getElementById("tbodyMascotas");
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">Sin mascotas registradas.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(m => `
+    <tr>
+      <td class="text-muted">${m.id}</td>
+      <td>${esc(m.nombre)}</td>
+      <td>${esc(m.especie)}</td>
+      <td>${esc(m.raza)}</td>
+      <td>${esc(m.color)}</td>
+      <td>${esc(m.sexo)}</td>
+      <td>${esc(m.fechaNacimiento)}</td>
+      <td>${esc(m.duenioNombre)}</td>
+      <td class="text-end">
+        <button class="btn btn-outline-primary btn-icon me-1" onclick="editarMascota(${m.id})">Editar</button>
+        <button class="btn btn-outline-danger btn-icon" onclick="eliminarMascota(${m.id})">Eliminar</button>
+      </td>
+    </tr>`).join("");
+}
+
+async function poblarSelectDuenios(selectId, valorActual = null) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = `<option value="">Seleccionar dueño…</option>`;
+  try {
+    const lista = dueniosCache.length ? dueniosCache : await apiFetch(`${API}/duenios`);
+    lista.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d.id;
+      opt.textContent = `${d.nombre} ${d.apellido} (DNI ${d.cedula})`;
+      if (valorActual && d.id === valorActual) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  } catch(e) { /* si falla, el select queda vacío */ }
+}
+
+async function abrirModalMascota() {
+  document.getElementById("modalMascotaTitulo").textContent = "Nueva mascota";
+  document.getElementById("formMascota").reset();
+  document.getElementById("mascotaId").value = "";
+  ocultarError("errMascota");
+  await poblarSelectDuenios("mDuenioId");
+}
+
+async function editarMascota(id) {
+  try {
+    const m = await apiFetch(`${API}/mascotas/${id}`);
+    document.getElementById("modalMascotaTitulo").textContent = "Editar mascota";
+    document.getElementById("mascotaId").value       = m.id;
+    document.getElementById("mNombre").value         = m.nombre          ?? "";
+    document.getElementById("mEspecie").value        = m.especie         ?? "";
+    document.getElementById("mRaza").value           = m.raza            ?? "";
+    document.getElementById("mColor").value          = m.color           ?? "";
+    document.getElementById("mSexo").value           = m.sexo            ?? "";
+    document.getElementById("mFechaNacimiento").value= m.fechaNacimiento ?? "";
+    ocultarError("errMascota");
+    await poblarSelectDuenios("mDuenioId", m.duenioId);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalMascota")).show();
+  } catch(e) { toast(e.message, false); }
+}
+
+document.getElementById("formMascota").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errMascota");
+  const id = document.getElementById("mascotaId").value;
+  const duenioId = document.getElementById("mDuenioId").value;
+  const body = {
+    nombre:          document.getElementById("mNombre").value.trim(),
+    especie:         document.getElementById("mEspecie").value.trim(),
+    raza:            document.getElementById("mRaza").value.trim()  || null,
+    color:           document.getElementById("mColor").value.trim() || null,
+    sexo:            document.getElementById("mSexo").value,
+    fechaNacimiento: document.getElementById("mFechaNacimiento").value,
+    duenioId:        duenioId ? Number(duenioId) : null
+  };
+  try {
+    if (id) {
+      await apiFetch(`${API}/mascotas/${id}`, { method: "PUT", body: JSON.stringify(body) });
+      toast("Mascota actualizada correctamente.");
+    } else {
+      // Crear mascota vía el endpoint de dueño
+      if (!duenioId) throw new Error("Debe seleccionar un dueño.");
+      await apiFetch(`${API}/duenios/${duenioId}/mascotas`, { method: "POST", body: JSON.stringify(body) });
+      toast("Mascota registrada correctamente.");
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modalMascota")).hide();
+    await cargarMascotas();
+  } catch(e) { mostrarError("errMascota", e.message); }
+});
+
+async function eliminarMascota(id) {
+  if (!confirm("¿Eliminar esta mascota?")) return;
+  try {
+    await apiFetch(`${API}/mascotas/${id}`, { method: "DELETE" });
+    toast("Mascota eliminada.");
+    await cargarMascotas();
+  } catch(e) { toast(e.message, false); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   VETERINARIOS
+════════════════════════════════════════════════════════════════════════════════ */
+let veterinariosCache = [];
+
+async function cargarVeterinarios() {
+  try {
+    veterinariosCache = await apiFetch(`${API}/veterinarios`);
+    renderVeterinarios(veterinariosCache);
+  } catch(e) {
+    document.getElementById("tbodyVeterinarios").innerHTML =
+      `<tr><td colspan="8" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+function renderVeterinarios(lista) {
+  const tbody = document.getElementById("tbodyVeterinarios");
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">Sin veterinarios registrados.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(v => `
+    <tr>
+      <td class="text-muted">${v.id}</td>
+      <td>${esc(v.nombre)}</td>
+      <td>${esc(v.apellido)}</td>
+      <td><code>${esc(v.matricula)}</code></td>
+      <td>${esc(v.especialidad)}</td>
+      <td>${esc(v.telefono)}</td>
+      <td>${esc(v.email)}</td>
+      <td class="text-end">
+        <button class="btn btn-outline-primary btn-icon me-1" onclick="editarVeterinario(${v.id})">Editar</button>
+        <button class="btn btn-outline-danger btn-icon" onclick="eliminarVeterinario(${v.id})">Eliminar</button>
+      </td>
+    </tr>`).join("");
+}
+
+function abrirModalVeterinario() {
+  document.getElementById("modalVeterinarioTitulo").textContent = "Nuevo veterinario";
+  document.getElementById("formVeterinario").reset();
+  document.getElementById("veterinarioId").value = "";
+  ocultarError("errVeterinario");
+}
+
+async function editarVeterinario(id) {
+  try {
+    const v = await apiFetch(`${API}/veterinarios/${id}`);
+    document.getElementById("modalVeterinarioTitulo").textContent = "Editar veterinario";
+    document.getElementById("veterinarioId").value  = v.id;
+    document.getElementById("vNombre").value        = v.nombre       ?? "";
+    document.getElementById("vApellido").value      = v.apellido     ?? "";
+    document.getElementById("vMatricula").value     = v.matricula    ?? "";
+    document.getElementById("vEspecialidad").value  = v.especialidad ?? "";
+    document.getElementById("vTelefono").value      = v.telefono     ?? "";
+    document.getElementById("vEmail").value         = v.email        ?? "";
+    ocultarError("errVeterinario");
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalVeterinario")).show();
+  } catch(e) { toast(e.message, false); }
+}
+
+document.getElementById("formVeterinario").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errVeterinario");
+  const id = document.getElementById("veterinarioId").value;
+  const body = {
+    nombre:       document.getElementById("vNombre").value.trim(),
+    apellido:     document.getElementById("vApellido").value.trim(),
+    matricula:    document.getElementById("vMatricula").value.trim(),
+    especialidad: document.getElementById("vEspecialidad").value.trim(),
+    telefono:     document.getElementById("vTelefono").value.trim(),
+    email:        document.getElementById("vEmail").value.trim() || null
+  };
+  try {
+    if (id) {
+      await apiFetch(`${API}/veterinarios/${id}`, { method: "PUT", body: JSON.stringify(body) });
+      toast("Veterinario actualizado correctamente.");
+    } else {
+      await apiFetch(`${API}/veterinarios`, { method: "POST", body: JSON.stringify(body) });
+      toast("Veterinario registrado correctamente.");
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modalVeterinario")).hide();
+    await cargarVeterinarios();
+  } catch(e) { mostrarError("errVeterinario", e.message); }
+});
+
+async function eliminarVeterinario(id) {
+  if (!confirm("¿Eliminar este veterinario?")) return;
+  try {
+    await apiFetch(`${API}/veterinarios/${id}`, { method: "DELETE" });
+    toast("Veterinario eliminado.");
+    await cargarVeterinarios();
+  } catch(e) { toast(e.message, false); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   TURNOS
+════════════════════════════════════════════════════════════════════════════════ */
+async function cargarTurnos() {
+  try {
+    const lista = await apiFetch(`${API}/turnos`);
+    renderTurnos(lista);
+  } catch(e) {
+    document.getElementById("tbodyTurnos").innerHTML =
+      `<tr><td colspan="8" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+function renderTurnos(lista) {
+  const tbody = document.getElementById("tbodyTurnos");
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">Sin turnos registrados.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(t => `
+    <tr>
+      <td class="text-muted">${t.id}</td>
+      <td>${esc(t.fecha)}</td>
+      <td>${esc(t.hora)}</td>
+      <td>${esc(t.mascotaNombre)}</td>
+      <td>${esc(t.motivo)}</td>
+      <td>${t.duracionMinutos} min</td>
+      <td><span class="badge-estado badge-${t.estado}">${t.estado}</span></td>
+      <td class="text-end">
+        <button class="btn btn-outline-primary btn-icon me-1" onclick="editarTurno(${t.id})">Editar</button>
+        <button class="btn btn-outline-danger btn-icon" onclick="eliminarTurno(${t.id})">Eliminar</button>
+      </td>
+    </tr>`).join("");
+}
+
+/* ── Vet rows dinámicos ─────────────────────────────────── */
+function agregarVetRow(vetId = "", rol = "ASISTENTE") {
+  const container = document.getElementById("vetRows");
+  const div = document.createElement("div");
+  div.className = "vet-row";
+
+  const selVet = document.createElement("select");
+  selVet.className = "form-select vet-select";
+  selVet.innerHTML = `<option value="">Veterinario…</option>` +
+    veterinariosCache.map(v =>
+      `<option value="${v.id}" ${v.id == vetId ? "selected" : ""}>${esc(v.nombre)} ${esc(v.apellido)}</option>`
+    ).join("");
+
+  const selRol = document.createElement("select");
+  selRol.className = "form-select rol-select";
+  selRol.innerHTML = ["PRINCIPAL","ASISTENTE","CONSULTOR"].map(r =>
+    `<option value="${r}" ${r === rol ? "selected" : ""}>${r}</option>`
+  ).join("");
+
+  const btnDel = document.createElement("button");
+  btnDel.type = "button";
+  btnDel.className = "btn btn-outline-danger btn-icon";
+  btnDel.textContent = "✕";
+  btnDel.onclick = () => div.remove();
+
+  div.append(selVet, selRol, btnDel);
+  container.appendChild(div);
+}
+
+async function poblarSelectMascotas(valorActual = null) {
+  const sel = document.getElementById("tMascotaId");
+  sel.innerHTML = `<option value="">Seleccionar mascota…</option>`;
+  try {
+    const lista = await apiFetch(`${API}/mascotas`);
+    lista.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = `${m.nombre} (${m.especie}) — ${m.duenioNombre ?? "sin dueño"}`;
+      if (valorActual && m.id === valorActual) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  } catch(e) { /* silencioso */ }
+}
+
+async function abrirModalTurno() {
+  document.getElementById("modalTurnoTitulo").textContent = "Nuevo turno";
+  document.getElementById("formTurno").reset();
+  document.getElementById("turnoId").value = "";
+  document.getElementById("vetRows").innerHTML = "";
+  ocultarError("errTurno");
+  await poblarSelectMascotas();
+  agregarVetRow("", "PRINCIPAL");
+}
+
+async function editarTurno(id) {
+  try {
+    const t = await apiFetch(`${API}/turnos/${id}`);
+    const vets = await apiFetch(`${API}/turnos/${id}/veterinarios`);
+
+    document.getElementById("modalTurnoTitulo").textContent = "Editar turno";
+    document.getElementById("turnoId").value   = t.id;
+    document.getElementById("tFecha").value    = t.fecha ?? "";
+    document.getElementById("tHora").value     = t.hora  ?? "";
+    document.getElementById("tMotivo").value   = t.motivo ?? "";
+    document.getElementById("tDuracion").value = t.duracionMinutos ?? 30;
+    document.getElementById("vetRows").innerHTML = "";
+    ocultarError("errTurno");
+
+    await poblarSelectMascotas(t.mascotaId ?? null);
+
+    vets.forEach(v => agregarVetRow(v.id, v.rol));
+    if (!vets.length) agregarVetRow("", "PRINCIPAL");
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalTurno")).show();
+  } catch(e) { toast(e.message, false); }
+}
+
+document.getElementById("formTurno").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errTurno");
+
+  const id = document.getElementById("turnoId").value;
+  const vetRows = [...document.getElementById("vetRows").querySelectorAll(".vet-row")];
+
+  if (!vetRows.length) {
+    mostrarError("errTurno", "Debe agregar al menos un veterinario."); return;
+  }
+
+  const veterinarios = vetRows.map(row => ({
+    veterinarioId: Number(row.querySelector(".vet-select").value),
+    rol:           row.querySelector(".rol-select").value
+  }));
+
+  if (veterinarios.some(v => !v.veterinarioId)) {
+    mostrarError("errTurno", "Seleccione un veterinario en cada fila."); return;
+  }
+
+  const body = {
+    fecha:           document.getElementById("tFecha").value,
+    hora:            document.getElementById("tHora").value,
+    motivo:          document.getElementById("tMotivo").value.trim(),
+    duracionMinutos: Number(document.getElementById("tDuracion").value),
+    mascotaId:       Number(document.getElementById("tMascotaId").value),
+    veterinarios
+  };
+
+  try {
+    if (id) {
+      await apiFetch(`${API}/turnos/${id}`, { method: "PUT", body: JSON.stringify(body) });
+      toast("Turno actualizado correctamente.");
+    } else {
+      await apiFetch(`${API}/turnos`, { method: "POST", body: JSON.stringify(body) });
+      toast("Turno registrado correctamente.");
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modalTurno")).hide();
+    await cargarTurnos();
+  } catch(e) { mostrarError("errTurno", e.message); }
+});
+
+async function eliminarTurno(id) {
+  if (!confirm("¿Eliminar este turno?")) return;
+  try {
+    await apiFetch(`${API}/turnos/${id}`, { method: "DELETE" });
+    toast("Turno eliminado.");
+    await cargarTurnos();
+  } catch(e) { toast(e.message, false); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   CARGA INICIAL — al activar cada tab carga sus datos
+════════════════════════════════════════════════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded", () => {
+  // Carga inmediata de dueños (tab activa por defecto)
+  cargarDuenios();
+
+  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(btn => {
+    btn.addEventListener("shown.bs.tab", (e) => {
+      const target = e.target.getAttribute("data-bs-target");
+      if (target === "#tabMascotas")     cargarMascotas();
+      if (target === "#tabVeterinarios") cargarVeterinarios();
+      if (target === "#tabTurnos")       cargarTurnos();
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -14,6 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TurnoMapper {
 
+    @Mapping(source = "mascota.id",     target = "mascotaId")
     @Mapping(source = "mascota.nombre", target = "mascotaNombre")
     @Mapping(target = "veterinarios", expression = "java(obtenerVeterinarios(turno))")
     TurnoResponseDTO toDto(Turno turno);
