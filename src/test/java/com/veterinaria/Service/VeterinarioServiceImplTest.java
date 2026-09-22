@@ -127,6 +127,33 @@ class VeterinarioServiceImplTest {
     }
 
     @Test
+    void createVeterinario_conEmailEnBlanco_normalizaEmailANull() {
+        VeterinarioRequestDTO request = new VeterinarioRequestDTO(
+                "Laura",
+                "Suarez",
+                "1122334455",
+                "",
+                "MAT-123",
+                "Clinica");
+        Veterinario veterinario = crearVeterinario();
+        veterinario.setEmail(null);
+        VeterinarioResponseDTO response =
+                new VeterinarioResponseDTO(1L, "Laura", "Suarez", "1122334455", null, "MAT-123", "Clinica");
+
+        when(veterinarioRepository.existsByMatricula("MAT-123")).thenReturn(false);
+        when(veterinarioMapper.toEntity(request)).thenReturn(veterinario);
+        when(veterinarioRepository.save(veterinario)).thenReturn(veterinario);
+        when(veterinarioMapper.toResponseDto(veterinario)).thenReturn(response);
+
+        VeterinarioResponseDTO resultado = veterinarioService.createVeterinario(request);
+
+        assertThat(request.getEmail()).isNull();
+        assertThat(resultado.getEmail()).isNull();
+        verify(veterinarioRepository, never()).existsByEmail(org.mockito.ArgumentMatchers.anyString());
+        verify(veterinarioRepository).save(veterinario);
+    }
+
+    @Test
     void createVeterinario_conCamposObligatoriosInvalidos_lanzaBadRequestExceptionYNoGuarda() {
         VeterinarioRequestDTO request = new VeterinarioRequestDTO("", "Suarez", "1122334455", null, "MAT-123", "Clinica");
 
@@ -186,12 +213,32 @@ class VeterinarioServiceImplTest {
     }
 
     @Test
+    void updateVeterinario_conEmailEnBlanco_normalizaEmailANull() {
+        Veterinario veterinario = crearVeterinario();
+        VeterinarioRequestDTO request = new VeterinarioRequestDTO(
+                "Laura", "Suarez", "1122334455", "   ", "MAT-123", "Clinica");
+        VeterinarioResponseDTO response =
+                new VeterinarioResponseDTO(1L, "Laura", "Suarez", "1122334455", null, "MAT-123", "Clinica");
+
+        when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
+        when(veterinarioRepository.save(veterinario)).thenReturn(veterinario);
+        when(veterinarioMapper.toResponseDto(veterinario)).thenReturn(response);
+
+        VeterinarioResponseDTO resultado = veterinarioService.updateVeterinario(1L, request);
+
+        assertThat(request.getEmail()).isNull();
+        assertThat(resultado.getEmail()).isNull();
+        verify(veterinarioRepository, never()).existsByEmail(org.mockito.ArgumentMatchers.anyString());
+        verify(veterinarioRepository).save(veterinario);
+    }
+
+    @Test
     void getTurnosByVeterinario_retornaParticipacionesOrdenadasPorFechaYHora() {
         Veterinario veterinario = crearVeterinario();
         Participacion segunda = crearParticipacion(
-                LocalDate.of(2026, 10, 2), LocalTime.of(9, 0), "Control");
+                LocalDate.now().plusDays(2), LocalTime.of(9, 0), "Control");
         Participacion primera = crearParticipacion(
-                LocalDate.of(2026, 10, 1), LocalTime.of(16, 0), "Vacuna");
+                LocalDate.now().plusDays(1), LocalTime.of(16, 0), "Vacuna");
 
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
         when(participacionRepository.findByVeterinarioId(1L)).thenReturn(List.of(segunda, primera));
@@ -255,6 +302,7 @@ class VeterinarioServiceImplTest {
         when(turno.getFecha()).thenReturn(fecha);
         when(turno.getHora()).thenReturn(hora);
         when(turno.getMotivo()).thenReturn(motivo);
+        when(turno.getDuracionMinutos()).thenReturn(30);
         when(turno.getMascota()).thenReturn(mascota);
 
         Participacion participacion = new Participacion();

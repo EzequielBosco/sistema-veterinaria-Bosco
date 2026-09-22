@@ -48,6 +48,9 @@ public class Turno {
     @Column(nullable = false, length = 255)
     private String motivo;
 
+    @Column(name = "duracion_minutos", nullable = false, columnDefinition = "INT DEFAULT 30")
+    private Integer duracionMinutos = 30;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "ENUM('PENDIENTE','CONFIRMADO','CANCELADO','AUSENTE','ATENDIDO') DEFAULT 'PENDIENTE'")
     private EstadoTurno estado = EstadoTurno.PENDIENTE;

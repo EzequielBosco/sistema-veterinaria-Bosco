@@ -2,10 +2,8 @@ package com.veterinaria.Controller;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.DTO.MascotaResponseDTO;
-import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.enums.SexoMascota;
 import com.veterinaria.Exception.ResourceNotFoundException;
-import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.MascotaService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +33,9 @@ class MascotaControllerTest {
     @MockitoBean
     private MascotaService mascotaService;
 
-    @MockitoBean
-    private MascotaMapper mascotaMapper;
-
     @Test
     void getAllMascotas_retornaHttp200ConListaVacia() throws Exception {
         when(mascotaService.getAllMascotas()).thenReturn(List.of());
-        when(mascotaMapper.toResponseDtoList(List.of())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mascotas"))
                 .andExpect(status().isOk())
@@ -51,10 +45,7 @@ class MascotaControllerTest {
 
     @Test
     void getMascotaById_cuandoExiste_retornaHttp200ConMascota() throws Exception {
-        Mascota mascota = new Mascota();
-        MascotaResponseDTO response = crearResponse();
-        when(mascotaService.getMascotaById(1L)).thenReturn(mascota);
-        when(mascotaMapper.toResponseDto(mascota)).thenReturn(response);
+        when(mascotaService.getMascotaById(1L)).thenReturn(crearResponse());
 
         mockMvc.perform(get("/api/mascotas/1"))
                 .andExpect(status().isOk())
@@ -72,11 +63,8 @@ class MascotaControllerTest {
 
     @Test
     void updateMascota_conBodyValido_retornaHttp200() throws Exception {
-        Mascota mascota = new Mascota();
-        MascotaResponseDTO response = crearResponse();
         when(mascotaService.updateMascota(org.mockito.ArgumentMatchers.eq(1L), any(MascotaRequestDTO.class)))
-                .thenReturn(mascota);
-        when(mascotaMapper.toResponseDto(mascota)).thenReturn(response);
+                .thenReturn(crearResponse());
 
         mockMvc.perform(put("/api/mascotas/1")
                         .contentType(MediaType.APPLICATION_JSON)

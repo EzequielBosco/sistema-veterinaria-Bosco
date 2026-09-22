@@ -47,6 +47,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
     @Override
     public VeterinarioResponseDTO createVeterinario(VeterinarioRequestDTO veterinarioRequestDTO) {
         validarCamposObligatorios(veterinarioRequestDTO);
+        normalizarEmail(veterinarioRequestDTO);
         validarMatriculaDisponible(veterinarioRequestDTO.getMatricula());
         validarEmailDisponible(veterinarioRequestDTO.getEmail());
         Veterinario veterinario = veterinarioMapper.toEntity(veterinarioRequestDTO);
@@ -56,6 +57,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
     @Override
     public VeterinarioResponseDTO updateVeterinario(Long id, VeterinarioRequestDTO veterinarioRequestDTO) {
         validarCamposObligatorios(veterinarioRequestDTO);
+        normalizarEmail(veterinarioRequestDTO);
         Veterinario veterinario = obtenerVeterinario(id);
 
         if (!veterinario.getMatricula().equals(veterinarioRequestDTO.getMatricula())) {
@@ -122,6 +124,12 @@ public class VeterinarioServiceImpl implements VeterinarioService {
         }
     }
 
+    private void normalizarEmail(VeterinarioRequestDTO veterinarioRequestDTO) {
+        if (veterinarioRequestDTO.getEmail() != null && veterinarioRequestDTO.getEmail().isBlank()) {
+            veterinarioRequestDTO.setEmail(null);
+        }
+    }
+
     private VeterinarioTurnoResponseDTO toVeterinarioTurnoDto(Participacion participacion) {
         Turno turno = participacion.getTurno();
         return new VeterinarioTurnoResponseDTO(
@@ -129,6 +137,7 @@ public class VeterinarioServiceImpl implements VeterinarioService {
                 turno.getFecha(),
                 turno.getHora(),
                 turno.getMotivo(),
+                turno.getDuracionMinutos(),
                 turno.getMascota().getNombre(),
                 participacion.getRol());
     }

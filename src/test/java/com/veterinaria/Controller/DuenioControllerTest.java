@@ -3,12 +3,8 @@ package com.veterinaria.Controller;
 import com.veterinaria.DTO.DuenioRequestDTO;
 import com.veterinaria.DTO.DuenioResponseDTO;
 import com.veterinaria.DTO.MascotaResponseDTO;
-import com.veterinaria.Entity.Duenio;
-import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.enums.SexoMascota;
 import com.veterinaria.Exception.ResourceNotFoundException;
-import com.veterinaria.Mapper.DuenioMapper;
-import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.DuenioService;
 import com.veterinaria.Service.MascotaService;
 import org.junit.jupiter.api.Test;
@@ -42,16 +38,9 @@ class DuenioControllerTest {
     @MockitoBean
     private MascotaService mascotaService;
 
-    @MockitoBean
-    private DuenioMapper duenioMapper;
-
-    @MockitoBean
-    private MascotaMapper mascotaMapper;
-
     @Test
     void getAllDuenios_retornaHttp200ConListaVacia() throws Exception {
         when(duenioService.getAllDuenios()).thenReturn(List.of());
-        when(duenioMapper.toResponseDtoList(List.of())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/duenios"))
                 .andExpect(status().isOk())
@@ -61,10 +50,7 @@ class DuenioControllerTest {
 
     @Test
     void getDuenioById_cuandoExiste_retornaHttp200ConDuenio() throws Exception {
-        Duenio duenio = crearDuenio();
-        DuenioResponseDTO response = crearResponse();
-        when(duenioService.getDuenioById(1L)).thenReturn(duenio);
-        when(duenioMapper.toResponseDto(duenio)).thenReturn(response);
+        when(duenioService.getDuenioById(1L)).thenReturn(crearResponse());
 
         mockMvc.perform(get("/api/duenios/1"))
                 .andExpect(status().isOk())
@@ -82,11 +68,7 @@ class DuenioControllerTest {
 
     @Test
     void createDuenio_conBodyValido_retornaHttp201() throws Exception {
-        Duenio duenio = crearDuenio();
-        DuenioResponseDTO response = crearResponse();
-        when(duenioMapper.toEntity(any(DuenioRequestDTO.class))).thenReturn(duenio);
-        when(duenioService.createDuenio(duenio)).thenReturn(duenio);
-        when(duenioMapper.toResponseDto(duenio)).thenReturn(response);
+        when(duenioService.createDuenio(any(DuenioRequestDTO.class))).thenReturn(crearResponse());
 
         mockMvc.perform(post("/api/duenios")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,9 +103,7 @@ class DuenioControllerTest {
 
     @Test
     void getDuenioByCedula_cuandoExiste_retornaHttp200() throws Exception {
-        Duenio duenio = crearDuenio();
-        when(duenioService.getDuenioByCedula("12345678")).thenReturn(duenio);
-        when(duenioMapper.toResponseDto(duenio)).thenReturn(crearResponse());
+        when(duenioService.getDuenioByCedula("12345678")).thenReturn(crearResponse());
 
         mockMvc.perform(get("/api/duenios/cedula/12345678"))
                 .andExpect(status().isOk())
@@ -141,9 +121,7 @@ class DuenioControllerTest {
 
     @Test
     void searchDuenios_retornaHttp200() throws Exception {
-        Duenio duenio = crearDuenio();
-        when(duenioService.searchDuenios("Ana", "Gomez")).thenReturn(List.of(duenio));
-        when(duenioMapper.toResponseDtoList(List.of(duenio))).thenReturn(List.of(crearResponse()));
+        when(duenioService.searchDuenios("Ana", "Gomez")).thenReturn(List.of(crearResponse()));
 
         mockMvc.perform(get("/api/duenios/search")
                         .param("nombre", "Ana")
@@ -154,9 +132,7 @@ class DuenioControllerTest {
 
     @Test
     void getDuenioByEmail_cuandoExiste_retornaHttp200() throws Exception {
-        Duenio duenio = crearDuenio();
-        when(duenioService.getDuenioByEmail("ana@mail.com")).thenReturn(duenio);
-        when(duenioMapper.toResponseDto(duenio)).thenReturn(crearResponse());
+        when(duenioService.getDuenioByEmail("ana@mail.com")).thenReturn(crearResponse());
 
         mockMvc.perform(get("/api/duenios/email/ana@mail.com"))
                 .andExpect(status().isOk())
@@ -174,10 +150,8 @@ class DuenioControllerTest {
 
     @Test
     void updateDuenio_conBodyValido_retornaHttp200() throws Exception {
-        Duenio duenio = crearDuenio();
-        when(duenioMapper.toEntity(any(DuenioRequestDTO.class))).thenReturn(duenio);
-        when(duenioService.updateDuenio(1L, duenio)).thenReturn(duenio);
-        when(duenioMapper.toResponseDto(duenio)).thenReturn(crearResponse());
+        when(duenioService.updateDuenio(org.mockito.ArgumentMatchers.eq(1L), any(DuenioRequestDTO.class)))
+                .thenReturn(crearResponse());
 
         mockMvc.perform(put("/api/duenios/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -229,19 +203,13 @@ class DuenioControllerTest {
 
     @Test
     void getMascotasByDuenioId_retornaHttp200() throws Exception {
-        Mascota mascota = new Mascota();
         MascotaResponseDTO response = new MascotaResponseDTO(
                 1L, "Luna", "Perro", null, null, SexoMascota.HEMBRA, null, 1L, "Ana");
-        when(mascotaService.getMascotasByDuenioId(1L)).thenReturn(List.of(mascota));
-        when(mascotaMapper.toResponseDtoList(List.of(mascota))).thenReturn(List.of(response));
+        when(mascotaService.getMascotasByDuenioId(1L)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/duenios/1/mascotas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Luna"));
-    }
-
-    private Duenio crearDuenio() {
-        return new Duenio("Ana", "Gomez", "1122334455", "ana@mail.com", "12345678");
     }
 
     private DuenioResponseDTO crearResponse() {

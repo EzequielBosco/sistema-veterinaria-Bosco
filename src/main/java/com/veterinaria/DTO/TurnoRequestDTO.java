@@ -2,6 +2,7 @@ package com.veterinaria.DTO;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,10 @@ public class TurnoRequestDTO {
 
     @NotBlank(message = "El motivo es obligatorio")
     private String motivo;
+
+    @NotNull(message = "La duracion es obligatoria")
+    @Min(value = 10, message = "La duracion debe ser de al menos 10 minutos")
+    private Integer duracionMinutos;
 
     @NotNull(message = "El id de la mascota es obligatorio")
     @Positive(message = "El id de la mascota debe ser positivo")

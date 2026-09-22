@@ -48,12 +48,13 @@ class TurnoControllerTest {
 
     @Test
     void getAgenda_conParametros_retornaHttp200() throws Exception {
+        LocalDate fecha = LocalDate.now().plusDays(1);
         TurnoResponseDTO response = crearResponse();
-        when(turnoService.getAgenda(1L, LocalDate.of(2026, 10, 1))).thenReturn(List.of(response));
+        when(turnoService.getAgenda(1L, fecha)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/turnos")
                         .param("veterinarioId", "1")
-                        .param("fecha", "2026-10-01"))
+                        .param("fecha", fecha.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].motivo").value("Consulta general"));
     }
@@ -97,6 +98,7 @@ class TurnoControllerTest {
 
     @Test
     void createTurno_conBodyValido_retornaHttp201() throws Exception {
+        LocalDate fecha = LocalDate.now().plusDays(1);
         TurnoResponseDTO response = crearResponse();
         when(turnoService.createTurno(any())).thenReturn(response);
 
@@ -104,73 +106,80 @@ class TurnoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "fecha": "2026-10-01",
+                                  "fecha": "%s",
                                   "hora": "10:00:00",
                                   "motivo": "Consulta general",
+                                  "duracionMinutos": 30,
                                   "mascotaId": 1,
                                   "veterinarios": [
                                     { "veterinarioId": 1, "rol": "PRINCIPAL" }
                                   ]
                                 }
-                                """))
+                                """.formatted(fecha)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.motivo").value("Consulta general"));
     }
 
     @Test
     void createTurno_sinMotivo_retornaHttp400() throws Exception {
+        LocalDate fecha = LocalDate.now().plusDays(1);
         mockMvc.perform(post("/api/turnos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "fecha": "2026-10-01",
+                                  "fecha": "%s",
                                   "hora": "10:00:00",
                                   "motivo": "",
+                                  "duracionMinutos": 30,
                                   "mascotaId": 1,
                                   "veterinarios": [
                                     { "veterinarioId": 1, "rol": "PRINCIPAL" }
                                   ]
                                 }
-                                """))
+                                """.formatted(fecha)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void updateTurno_conBodyValido_retornaHttp200() throws Exception {
+        LocalDate fecha = LocalDate.now().plusDays(1);
         when(turnoService.updateTurno(org.mockito.ArgumentMatchers.eq(1L), any())).thenReturn(crearResponse());
 
         mockMvc.perform(put("/api/turnos/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "fecha": "2026-10-01",
+                                  "fecha": "%s",
                                   "hora": "10:00:00",
                                   "motivo": "Consulta general",
+                                  "duracionMinutos": 30,
                                   "mascotaId": 1,
                                   "veterinarios": [
                                     { "veterinarioId": 1, "rol": "PRINCIPAL" }
                                   ]
                                 }
-                                """))
+                                """.formatted(fecha)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.motivo").value("Consulta general"));
     }
 
     @Test
     void updateTurno_conBodyInvalido_retornaHttp400() throws Exception {
+        LocalDate fecha = LocalDate.now().plusDays(1);
         mockMvc.perform(put("/api/turnos/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "fecha": "2026-10-01",
+                                  "fecha": "%s",
                                   "hora": "10:00:00",
                                   "motivo": "",
+                                  "duracionMinutos": 30,
                                   "mascotaId": 1,
                                   "veterinarios": [
                                     { "veterinarioId": 1, "rol": "PRINCIPAL" }
                                   ]
                                 }
-                                """))
+                                """.formatted(fecha)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -194,9 +203,10 @@ class TurnoControllerTest {
     private TurnoResponseDTO crearResponse() {
         return new TurnoResponseDTO(
                 1L,
-                LocalDate.of(2026, 10, 1),
+                LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0),
                 "Consulta general",
+                30,
                 EstadoTurno.PENDIENTE,
                 "Luna",
                 List.of(new TurnoVeterinarioResponseDTO(1L, "Laura Suarez", RolVeterinario.PRINCIPAL)));

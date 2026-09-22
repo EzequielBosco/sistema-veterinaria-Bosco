@@ -17,6 +17,7 @@ public class VeterinarioTurnoResponseDTO {
     private LocalDate fecha;
     private LocalTime hora;
     private String motivo;
+    private Integer duracionMinutos;
     private String mascotaNombre;
     private RolVeterinario rol;
 }

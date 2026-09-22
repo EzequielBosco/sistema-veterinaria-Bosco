@@ -1,9 +1,11 @@
 package com.veterinaria.Service;
 
+import com.veterinaria.DTO.DuenioRequestDTO;
+import com.veterinaria.DTO.DuenioResponseDTO;
 import com.veterinaria.Entity.Duenio;
-import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.DuplicateResourceException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Mapper.DuenioMapper;
 import com.veterinaria.Repository.DuenioRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,54 +16,57 @@ import java.util.Optional;
 public class DuenioServiceImpl implements DuenioService {
 
     private final DuenioRepository duenioRepository;
+    private final DuenioMapper duenioMapper;
 
-    public DuenioServiceImpl(DuenioRepository duenioRepository) {
+    public DuenioServiceImpl(DuenioRepository duenioRepository, DuenioMapper duenioMapper) {
         this.duenioRepository = duenioRepository;
+        this.duenioMapper = duenioMapper;
     }
 
     @Override
-    public List<Duenio> getAllDuenios() {
-        return duenioRepository.findAll();
+    public List<DuenioResponseDTO> getAllDuenios() {
+        return duenioMapper.toResponseDtoList(duenioRepository.findAll());
     }
 
     @Override
-    public Duenio getDuenioById(Long id) {
-        return duenioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con id " + id));
+    public DuenioResponseDTO getDuenioById(Long id) {
+        return duenioMapper.toResponseDto(obtenerDuenio(id));
     }
 
     @Override
-    public Duenio getDuenioByCedula(String cedula) {
-        return duenioRepository.findByCedula(cedula)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con cedula/DNI " + cedula));
+    public DuenioResponseDTO getDuenioByCedula(String cedula) {
+        return duenioMapper.toResponseDto(duenioRepository.findByCedula(cedula)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con cedula/DNI " + cedula)));
     }
 
     @Override
-    public List<Duenio> searchDuenios(String nombre, String apellido) {
-        return duenioRepository.findByNombreAndApellido(nombre, apellido);
+    public List<DuenioResponseDTO> searchDuenios(String nombre, String apellido) {
+        return duenioMapper.toResponseDtoList(duenioRepository.findByNombreAndApellido(nombre, apellido));
     }
 
     @Override
-    public Duenio getDuenioByEmail(String email) {
-        return duenioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con email " + email));
+    public DuenioResponseDTO getDuenioByEmail(String email) {
+        return duenioMapper.toResponseDto(duenioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con email " + email)));
     }
 
     @Override
-    public Duenio createDuenio(Duenio duenio) {
-        validarCamposObligatorios(duenio);
+    public DuenioResponseDTO createDuenio(DuenioRequestDTO duenioRequestDTO) {
+        normalizarEmail(duenioRequestDTO);
+        Duenio duenio = duenioMapper.toEntity(duenioRequestDTO);
         if (duenioRepository.existsByCedula(duenio.getCedula())) {
             throw new DuplicateResourceException("La cedula/DNI ya esta registrada");
         }
         if (duenio.getEmail() != null && duenioRepository.existsByEmail(duenio.getEmail())) {
             throw new DuplicateResourceException("El email ya esta registrado");
         }
-        return duenioRepository.save(duenio);
+        return duenioMapper.toResponseDto(duenioRepository.save(duenio));
     }
 
     @Override
-    public Duenio updateDuenio(Long id, Duenio duenioActualizado) {
-        validarCamposObligatorios(duenioActualizado);
+    public DuenioResponseDTO updateDuenio(Long id, DuenioRequestDTO duenioRequestDTO) {
+        normalizarEmail(duenioRequestDTO);
+        Duenio duenioActualizado = duenioMapper.toEntity(duenioRequestDTO);
         Optional<Duenio> duenioExistenteOpt = duenioRepository.findById(id);
         if (duenioExistenteOpt.isEmpty()) {
             throw new ResourceNotFoundException("No existe un duenio con id " + id);
@@ -86,7 +91,7 @@ public class DuenioServiceImpl implements DuenioService {
         duenioExistente.setEmail(duenioActualizado.getEmail());
         duenioExistente.setCedula(duenioActualizado.getCedula());
 
-        return duenioRepository.save(duenioExistente);
+        return duenioMapper.toResponseDto(duenioRepository.save(duenioExistente));
     }
 
     @Override
@@ -98,12 +103,14 @@ public class DuenioServiceImpl implements DuenioService {
         duenioRepository.delete(duenioOpt.get());
     }
 
-    private void validarCamposObligatorios(Duenio duenio) {
-        if (duenio.getNombre() == null || duenio.getNombre().isBlank()
-                || duenio.getApellido() == null || duenio.getApellido().isBlank()
-                || duenio.getCedula() == null || duenio.getCedula().isBlank()
-                || duenio.getTelefono() == null || duenio.getTelefono().isBlank()) {
-            throw new BadRequestException("Debe indicar nombre, apellido, cedula y telefono");
+    private Duenio obtenerDuenio(Long id) {
+        return duenioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un duenio con id " + id));
+    }
+
+    private void normalizarEmail(DuenioRequestDTO duenioRequestDTO) {
+        if (duenioRequestDTO.getEmail() != null && duenioRequestDTO.getEmail().isBlank()) {
+            duenioRequestDTO.setEmail(null);
         }
     }
 }

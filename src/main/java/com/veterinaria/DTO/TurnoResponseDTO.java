@@ -18,6 +18,7 @@ public class TurnoResponseDTO {
     private LocalDate fecha;
     private LocalTime hora;
     private String motivo;
+    private Integer duracionMinutos;
     private EstadoTurno estado;
     private String mascotaNombre;
     private List<TurnoVeterinarioResponseDTO> veterinarios;

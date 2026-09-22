@@ -1,11 +1,13 @@
 package com.veterinaria.Service;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
+import com.veterinaria.DTO.MascotaResponseDTO;
 import com.veterinaria.Entity.Duenio;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Entity.enums.SexoMascota;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Repository.DuenioRepository;
 import com.veterinaria.Repository.MascotaRepository;
 import org.junit.jupiter.api.Test;
@@ -34,15 +36,20 @@ class MascotaServiceImplTest {
     @Mock
     private DuenioRepository duenioRepository;
 
+    @Mock
+    private MascotaMapper mascotaMapper;
+
     @InjectMocks
     private MascotaServiceImpl mascotaService;
 
     @Test
     void getAllMascotas_retornaListaConMascotas() {
         Mascota mascota = crearMascota();
+        MascotaResponseDTO response = crearResponse();
         when(mascotaRepository.findAll()).thenReturn(List.of(mascota));
+        when(mascotaMapper.toResponseDtoList(List.of(mascota))).thenReturn(List.of(response));
 
-        List<Mascota> resultado = mascotaService.getAllMascotas();
+        List<MascotaResponseDTO> resultado = mascotaService.getAllMascotas();
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.getFirst().getNombre()).isEqualTo("Luna");
@@ -51,8 +58,9 @@ class MascotaServiceImplTest {
     @Test
     void getAllMascotas_sinDatos_retornaListaVacia() {
         when(mascotaRepository.findAll()).thenReturn(List.of());
+        when(mascotaMapper.toResponseDtoList(List.of())).thenReturn(List.of());
 
-        List<Mascota> resultado = mascotaService.getAllMascotas();
+        List<MascotaResponseDTO> resultado = mascotaService.getAllMascotas();
 
         assertThat(resultado).isEmpty();
     }
@@ -60,9 +68,11 @@ class MascotaServiceImplTest {
     @Test
     void getMascotaById_cuandoExiste_retornaMascota() {
         Mascota mascota = crearMascota();
+        MascotaResponseDTO response = crearResponse();
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
+        when(mascotaMapper.toResponseDto(mascota)).thenReturn(response);
 
-        Mascota resultado = mascotaService.getMascotaById(1L);
+        MascotaResponseDTO resultado = mascotaService.getMascotaById(1L);
 
         assertThat(resultado.getNombre()).isEqualTo("Luna");
     }
@@ -77,30 +87,38 @@ class MascotaServiceImplTest {
     @Test
     void createMascota_cuandoDuenioExiste_guardaMascota() {
         Duenio duenio = new Duenio("Ana", "Gomez", "1122334455", null, "12345678");
+        MascotaRequestDTO request = crearRequest(null);
         Mascota mascota = crearMascota();
+        MascotaResponseDTO response = crearResponse();
+        when(mascotaMapper.toEntity(request)).thenReturn(mascota);
         when(duenioRepository.findById(1L)).thenReturn(Optional.of(duenio));
         when(mascotaRepository.save(mascota)).thenReturn(mascota);
+        when(mascotaMapper.toResponseDto(mascota)).thenReturn(response);
 
-        Mascota resultado = mascotaService.createMascota(1L, mascota);
+        MascotaResponseDTO resultado = mascotaService.createMascota(1L, request);
 
-        assertThat(resultado.getDuenio()).isSameAs(duenio);
+        assertThat(resultado.getNombre()).isEqualTo("Luna");
+        assertThat(mascota.getDuenio()).isSameAs(duenio);
         verify(mascotaRepository).save(mascota);
     }
 
     @Test
     void createMascota_sinDuenioId_lanzaBadRequestExceptionYNoGuarda() {
-        Mascota mascota = crearMascota();
+        MascotaRequestDTO request = crearRequest(null);
+        when(mascotaMapper.toEntity(request)).thenReturn(crearMascota());
 
-        assertThrows(BadRequestException.class, () -> mascotaService.createMascota(null, mascota));
+        assertThrows(BadRequestException.class, () -> mascotaService.createMascota(null, request));
         verify(mascotaRepository, never()).save(any(Mascota.class));
     }
 
     @Test
     void createMascota_conDuenioInexistente_lanzaResourceNotFoundExceptionYNoGuarda() {
+        MascotaRequestDTO request = crearRequest(null);
         Mascota mascota = crearMascota();
+        when(mascotaMapper.toEntity(request)).thenReturn(mascota);
         when(duenioRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> mascotaService.createMascota(99L, mascota));
+        assertThrows(ResourceNotFoundException.class, () -> mascotaService.createMascota(99L, request));
         verify(mascotaRepository, never()).save(any(Mascota.class));
     }
 
@@ -108,12 +126,14 @@ class MascotaServiceImplTest {
     void getMascotasByDuenioId_cuandoDuenioExiste_retornaMascotas() {
         Duenio duenio = new Duenio("Ana", "Gomez", "1122334455", null, "12345678");
         Mascota mascota = crearMascota();
+        MascotaResponseDTO response = crearResponse();
         when(duenioRepository.findById(1L)).thenReturn(Optional.of(duenio));
         when(mascotaRepository.findByDuenioId(1L)).thenReturn(List.of(mascota));
+        when(mascotaMapper.toResponseDtoList(List.of(mascota))).thenReturn(List.of(response));
 
-        List<Mascota> resultado = mascotaService.getMascotasByDuenioId(1L);
+        List<MascotaResponseDTO> resultado = mascotaService.getMascotasByDuenioId(1L);
 
-        assertThat(resultado).containsExactly(mascota);
+        assertThat(resultado).containsExactly(response);
     }
 
     @Test
@@ -128,15 +148,18 @@ class MascotaServiceImplTest {
         Mascota mascota = crearMascota();
         Duenio duenioNuevo = new Duenio("Carlos", "Diaz", "1155555555", null, "87654321");
         MascotaRequestDTO request = crearRequest(2L);
+        MascotaResponseDTO response = new MascotaResponseDTO(
+                1L, "Milo", "Gato", "Siames", "Gris", SexoMascota.MACHO, LocalDate.of(2021, 5, 20), 2L, "Carlos");
 
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
         when(duenioRepository.findById(2L)).thenReturn(Optional.of(duenioNuevo));
         when(mascotaRepository.save(mascota)).thenReturn(mascota);
+        when(mascotaMapper.toResponseDto(mascota)).thenReturn(response);
 
-        Mascota resultado = mascotaService.updateMascota(1L, request);
+        MascotaResponseDTO resultado = mascotaService.updateMascota(1L, request);
 
         assertThat(resultado.getNombre()).isEqualTo("Milo");
-        assertThat(resultado.getDuenio()).isSameAs(duenioNuevo);
+        assertThat(mascota.getDuenio()).isSameAs(duenioNuevo);
         verify(mascotaRepository).save(mascota);
     }
 
@@ -196,5 +219,18 @@ class MascotaServiceImplTest {
                 SexoMascota.MACHO,
                 LocalDate.of(2021, 5, 20),
                 duenioId);
+    }
+
+    private MascotaResponseDTO crearResponse() {
+        return new MascotaResponseDTO(
+                1L,
+                "Luna",
+                "Perro",
+                "Mestiza",
+                "Negro",
+                SexoMascota.HEMBRA,
+                LocalDate.of(2020, 1, 10),
+                1L,
+                "Ana");
     }
 }

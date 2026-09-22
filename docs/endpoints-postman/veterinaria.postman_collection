@@ -649,7 +649,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"fecha\": \"2026-09-22\",\r\n  \"hora\": \"10:30:00\",\r\n  \"motivo\": \"Consulta general\",\r\n  \"mascotaId\": 1,\r\n  \"veterinarios\": [\r\n    {\r\n      \"veterinarioId\": 1,\r\n      \"rol\": \"PRINCIPAL\"\r\n    },\r\n    {\r\n      \"veterinarioId\": 2,\r\n      \"rol\": \"CONSULTOR\"\r\n    }\r\n  ]\r\n}",
+          "raw": "{\r\n  \"fecha\": \"2026-09-22\",\r\n  \"hora\": \"14:30:00\",\r\n  \"motivo\": \"Consulta general\",\r\n  \"mascotaId\": 1,\r\n  \"duracionMinutos\": 40,\r\n  \"veterinarios\": [\r\n    {\r\n      \"veterinarioId\": 1,\r\n      \"rol\": \"PRINCIPAL\"\r\n    },\r\n    {\r\n      \"veterinarioId\": 2,\r\n      \"rol\": \"CONSULTOR\"\r\n    }\r\n  ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -684,7 +684,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"fecha\": \"2026-09-22\",\r\n  \"hora\": \"11:00:00\",\r\n  \"motivo\": \"Control\",\r\n  \"mascotaId\": 1,\r\n  \"veterinarios\": [\r\n    {\r\n      \"veterinarioId\": 1,\r\n      \"rol\": \"PRINCIPAL\"\r\n    },\r\n    {\r\n      \"veterinarioId\": 2,\r\n      \"rol\": \"ASISTENTE\"\r\n    }\r\n  ]\r\n}",
+          "raw": "{\r\n  \"fecha\": \"2026-09-22\",\r\n  \"hora\": \"11:00:00\",\r\n  \"motivo\": \"Control\",\r\n  \"mascotaId\": 1,\r\n  \"duracionMinutos\": 40,\r\n  \"veterinarios\": [\r\n    {\r\n      \"veterinarioId\": 1,\r\n      \"rol\": \"PRINCIPAL\"\r\n    },\r\n    {\r\n      \"veterinarioId\": 2,\r\n      \"rol\": \"ASISTENTE\"\r\n    }\r\n  ]\r\n}",
           "options": {
             "raw": {
               "language": "json"

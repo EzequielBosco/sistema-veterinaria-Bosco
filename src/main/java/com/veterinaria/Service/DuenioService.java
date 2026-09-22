@@ -1,24 +1,25 @@
 package com.veterinaria.Service;
 
-import com.veterinaria.Entity.Duenio;
+import com.veterinaria.DTO.DuenioRequestDTO;
+import com.veterinaria.DTO.DuenioResponseDTO;
 
 import java.util.List;
 
 public interface DuenioService {
 
-    List<Duenio> getAllDuenios();
+    List<DuenioResponseDTO> getAllDuenios();
 
-    Duenio getDuenioById(Long id);
+    DuenioResponseDTO getDuenioById(Long id);
 
-    Duenio getDuenioByCedula(String cedula);
+    DuenioResponseDTO getDuenioByCedula(String cedula);
 
-    List<Duenio> searchDuenios(String nombre, String apellido);
+    List<DuenioResponseDTO> searchDuenios(String nombre, String apellido);
 
-    Duenio getDuenioByEmail(String email);
+    DuenioResponseDTO getDuenioByEmail(String email);
 
-    Duenio createDuenio(Duenio duenio);
+    DuenioResponseDTO createDuenio(DuenioRequestDTO duenioRequestDTO);
 
-    Duenio updateDuenio(Long id, Duenio duenioActualizado);
+    DuenioResponseDTO updateDuenio(Long id, DuenioRequestDTO duenioRequestDTO);
 
     void deleteDuenio(Long id);
 }

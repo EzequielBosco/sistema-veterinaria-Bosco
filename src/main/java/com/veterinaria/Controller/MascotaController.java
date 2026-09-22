@@ -2,7 +2,6 @@ package com.veterinaria.Controller;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
 import com.veterinaria.DTO.MascotaResponseDTO;
-import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Service.MascotaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,28 +20,26 @@ import java.util.List;
 public class MascotaController {
 
     private final MascotaService mascotaService;
-    private final MascotaMapper mascotaMapper;
 
-    public MascotaController(MascotaService mascotaService, MascotaMapper mascotaMapper) {
+    public MascotaController(MascotaService mascotaService) {
         this.mascotaService = mascotaService;
-        this.mascotaMapper = mascotaMapper;
     }
 
     @GetMapping
     public ResponseEntity<List<MascotaResponseDTO>> getAllMascotas() {
-        return ResponseEntity.ok(mascotaMapper.toResponseDtoList(mascotaService.getAllMascotas()));
+        return ResponseEntity.ok(mascotaService.getAllMascotas());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MascotaResponseDTO> getMascotaById(@PathVariable Long id) {
-        return ResponseEntity.ok(mascotaMapper.toResponseDto(mascotaService.getMascotaById(id)));
+        return ResponseEntity.ok(mascotaService.getMascotaById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<MascotaResponseDTO> updateMascota(
             @PathVariable Long id,
             @Valid @RequestBody MascotaRequestDTO mascotaRequestDTO) {
-        return ResponseEntity.ok(mascotaMapper.toResponseDto(mascotaService.updateMascota(id, mascotaRequestDTO)));
+        return ResponseEntity.ok(mascotaService.updateMascota(id, mascotaRequestDTO));
     }
 
     @DeleteMapping("/{id}")

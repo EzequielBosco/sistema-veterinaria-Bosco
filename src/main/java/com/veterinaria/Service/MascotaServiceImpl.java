@@ -1,10 +1,12 @@
 package com.veterinaria.Service;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
+import com.veterinaria.DTO.MascotaResponseDTO;
 import com.veterinaria.Entity.Duenio;
 import com.veterinaria.Entity.Mascota;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Mapper.MascotaMapper;
 import com.veterinaria.Repository.DuenioRepository;
 import com.veterinaria.Repository.MascotaRepository;
 import org.springframework.stereotype.Service;
@@ -16,57 +18,67 @@ public class MascotaServiceImpl implements MascotaService {
 
     private final MascotaRepository mascotaRepository;
     private final DuenioRepository duenioRepository;
+    private final MascotaMapper mascotaMapper;
 
-    public MascotaServiceImpl(MascotaRepository mascotaRepository, DuenioRepository duenioRepository) {
+    public MascotaServiceImpl(
+            MascotaRepository mascotaRepository,
+            DuenioRepository duenioRepository,
+            MascotaMapper mascotaMapper) {
         this.mascotaRepository = mascotaRepository;
         this.duenioRepository = duenioRepository;
+        this.mascotaMapper = mascotaMapper;
     }
 
     @Override
-    public List<Mascota> getAllMascotas() {
-        return mascotaRepository.findAll();
+    public List<MascotaResponseDTO> getAllMascotas() {
+        return mascotaMapper.toResponseDtoList(mascotaRepository.findAll());
     }
 
     @Override
-    public Mascota getMascotaById(Long id) {
-        return mascotaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe una mascota con id " + id));
+    public MascotaResponseDTO getMascotaById(Long id) {
+        return mascotaMapper.toResponseDto(obtenerMascota(id));
     }
 
     @Override
-    public List<Mascota> getMascotasByDuenioId(Long duenioId) {
+    public List<MascotaResponseDTO> getMascotasByDuenioId(Long duenioId) {
         validarDuenioExistente(duenioId);
-        return mascotaRepository.findByDuenioId(duenioId);
+        return mascotaMapper.toResponseDtoList(mascotaRepository.findByDuenioId(duenioId));
     }
 
     @Override
-    public Mascota createMascota(Long duenioId, Mascota mascota) {
+    public MascotaResponseDTO createMascota(Long duenioId, MascotaRequestDTO mascotaRequestDTO) {
+        Mascota mascota = mascotaMapper.toEntity(mascotaRequestDTO);
         mascota.setDuenio(obtenerDuenioObligatorio(duenioId));
-        return mascotaRepository.save(mascota);
+        return mascotaMapper.toResponseDto(mascotaRepository.save(mascota));
     }
 
     @Override
-    public Mascota updateMascota(Long id, MascotaRequestDTO mascotaActualizada) {
-        Mascota mascotaExistente = getMascotaById(id);
+    public MascotaResponseDTO updateMascota(Long id, MascotaRequestDTO mascotaRequestDTO) {
+        Mascota mascotaExistente = obtenerMascota(id);
 
-        mascotaExistente.setNombre(mascotaActualizada.getNombre());
-        mascotaExistente.setEspecie(mascotaActualizada.getEspecie());
-        mascotaExistente.setRaza(mascotaActualizada.getRaza());
-        mascotaExistente.setColor(mascotaActualizada.getColor());
-        mascotaExistente.setSexo(mascotaActualizada.getSexo());
-        mascotaExistente.setFechaNacimiento(mascotaActualizada.getFechaNacimiento());
+        mascotaExistente.setNombre(mascotaRequestDTO.getNombre());
+        mascotaExistente.setEspecie(mascotaRequestDTO.getEspecie());
+        mascotaExistente.setRaza(mascotaRequestDTO.getRaza());
+        mascotaExistente.setColor(mascotaRequestDTO.getColor());
+        mascotaExistente.setSexo(mascotaRequestDTO.getSexo());
+        mascotaExistente.setFechaNacimiento(mascotaRequestDTO.getFechaNacimiento());
 
-        if (mascotaActualizada.getDuenioId() != null) {
-            mascotaExistente.setDuenio(validarDuenioExistente(mascotaActualizada.getDuenioId()));
+        if (mascotaRequestDTO.getDuenioId() != null) {
+            mascotaExistente.setDuenio(validarDuenioExistente(mascotaRequestDTO.getDuenioId()));
         }
 
-        return mascotaRepository.save(mascotaExistente);
+        return mascotaMapper.toResponseDto(mascotaRepository.save(mascotaExistente));
     }
 
     @Override
     public void deleteMascota(Long id) {
-        Mascota mascota = getMascotaById(id);
+        Mascota mascota = obtenerMascota(id);
         mascotaRepository.delete(mascota);
+    }
+
+    private Mascota obtenerMascota(Long id) {
+        return mascotaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe una mascota con id " + id));
     }
 
     private Duenio obtenerDuenioObligatorio(Long duenioId) {

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,6 +100,7 @@ public class TurnoServiceImpl implements TurnoService {
         turno.setFecha(turnoRequestDTO.getFecha());
         turno.setHora(turnoRequestDTO.getHora());
         turno.setMotivo(turnoRequestDTO.getMotivo());
+        turno.setDuracionMinutos(turnoRequestDTO.getDuracionMinutos());
         turno.setMascota(mascota);
         reemplazarParticipaciones(turno, veterinarios);
 
@@ -126,10 +128,15 @@ public class TurnoServiceImpl implements TurnoService {
     private void validarRequest(TurnoRequestDTO turnoRequestDTO) {
         if (turnoRequestDTO.getFecha() == null
                 || turnoRequestDTO.getHora() == null
+                || turnoRequestDTO.getDuracionMinutos() == null
                 || turnoRequestDTO.getMascotaId() == null
                 || turnoRequestDTO.getMotivo() == null
                 || turnoRequestDTO.getMotivo().isBlank()) {
-            throw new BadRequestException("Debe indicar fecha, hora, motivo y mascotaId");
+            throw new BadRequestException("Debe indicar fecha, hora, duracion, motivo y mascotaId");
+        }
+
+        if (turnoRequestDTO.getDuracionMinutos() < 1) {
+            throw new BadRequestException("La duracion debe ser de al menos 1 minuto");
         }
 
         if (turnoRequestDTO.getVeterinarios() == null || turnoRequestDTO.getVeterinarios().isEmpty()) {
@@ -192,17 +199,27 @@ public class TurnoServiceImpl implements TurnoService {
             TurnoRequestDTO turnoRequestDTO,
             Long turnoId) {
         for (Veterinario veterinario : veterinarios) {
-            boolean ocupado = turnoId == null
-                    ? turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHora(
-                            veterinario.getId(), turnoRequestDTO.getFecha(), turnoRequestDTO.getHora())
-                    : turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHoraAndIdNot(
-                            veterinario.getId(), turnoRequestDTO.getFecha(), turnoRequestDTO.getHora(), turnoId);
-
-            if (ocupado) {
+            if (tieneTurnoSuperpuesto(veterinario.getId(), turnoRequestDTO, turnoId)) {
                 throw new TurnoSuperpuestoException(
                         "El veterinario con id " + veterinario.getId() + " ya tiene un turno en esa fecha y hora");
             }
         }
+    }
+
+    private boolean tieneTurnoSuperpuesto(Long veterinarioId, TurnoRequestDTO turnoRequestDTO, Long turnoId) {
+        LocalTime inicioNuevo = turnoRequestDTO.getHora();
+        LocalTime finNuevo = inicioNuevo.plusMinutes(turnoRequestDTO.getDuracionMinutos());
+
+        return turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(
+                        veterinarioId,
+                        turnoRequestDTO.getFecha())
+                .stream()
+                .filter(turno -> turnoId == null || !turnoId.equals(turno.getId()))
+                .anyMatch(turno -> {
+                    LocalTime inicioExistente = turno.getHora();
+                    LocalTime finExistente = inicioExistente.plusMinutes(turno.getDuracionMinutos());
+                    return inicioExistente.isBefore(finNuevo) && inicioNuevo.isBefore(finExistente);
+                });
     }
 
     private void asignarParticipaciones(Turno turno, Map<TurnoVeterinarioRequestDTO, Veterinario> veterinarios) {

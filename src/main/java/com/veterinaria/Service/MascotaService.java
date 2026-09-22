@@ -1,21 +1,21 @@
 package com.veterinaria.Service;
 
 import com.veterinaria.DTO.MascotaRequestDTO;
-import com.veterinaria.Entity.Mascota;
+import com.veterinaria.DTO.MascotaResponseDTO;
 
 import java.util.List;
 
 public interface MascotaService {
 
-    List<Mascota> getAllMascotas();
+    List<MascotaResponseDTO> getAllMascotas();
 
-    Mascota getMascotaById(Long id);
+    MascotaResponseDTO getMascotaById(Long id);
 
-    List<Mascota> getMascotasByDuenioId(Long duenioId);
+    List<MascotaResponseDTO> getMascotasByDuenioId(Long duenioId);
 
-    Mascota createMascota(Long duenioId, Mascota mascota);
+    MascotaResponseDTO createMascota(Long duenioId, MascotaRequestDTO mascotaRequestDTO);
 
-    Mascota updateMascota(Long id, MascotaRequestDTO mascotaActualizada);
+    MascotaResponseDTO updateMascota(Long id, MascotaRequestDTO mascotaRequestDTO);
 
     void deleteMascota(Long id);
 }

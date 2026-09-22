@@ -67,9 +67,10 @@ class VeterinarioControllerTest {
     void getTurnosByVeterinario_retornaHttp200() throws Exception {
         VeterinarioTurnoResponseDTO turno = new VeterinarioTurnoResponseDTO(
                 1L,
-                LocalDate.of(2026, 10, 1),
+                LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0),
                 "Consulta general",
+                30,
                 "Luna",
                 RolVeterinario.PRINCIPAL);
         when(veterinarioService.getTurnosByVeterinario(1L)).thenReturn(List.of(turno));

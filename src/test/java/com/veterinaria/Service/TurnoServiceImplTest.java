@@ -131,14 +131,15 @@ class TurnoServiceImplTest {
                 request.getFecha(),
                 request.getHora(),
                 request.getMotivo(),
+                request.getDuracionMinutos(),
                 EstadoTurno.PENDIENTE,
                 "Luna",
                 List.of());
 
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(mascota));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        when(turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHora(
-                1L, request.getFecha(), request.getHora())).thenReturn(false);
+        when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
+                .thenReturn(List.of());
         when(turnoMapper.toEntity(request)).thenReturn(turno);
         when(turnoRepository.save(turno)).thenReturn(turno);
         when(turnoMapper.toDto(turno)).thenReturn(response);
@@ -157,8 +158,9 @@ class TurnoServiceImplTest {
 
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(mascota));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        when(turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHora(
-                1L, request.getFecha(), request.getHora())).thenReturn(true);
+        Turno turnoExistente = crearTurnoExistente(request.getFecha(), LocalTime.of(10, 15), 30);
+        when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
+                .thenReturn(List.of(turnoExistente));
 
         assertThrows(TurnoSuperpuestoException.class, () -> turnoService.createTurno(request));
         verify(turnoRepository, never()).save(any(Turno.class));
@@ -203,8 +205,8 @@ class TurnoServiceImplTest {
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(mascota));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        when(turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHoraAndIdNot(
-                1L, request.getFecha(), request.getHora(), 1L)).thenReturn(false);
+        when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
+                .thenReturn(List.of());
         when(turnoRepository.save(turno)).thenReturn(turno);
         when(turnoMapper.toDto(turno)).thenReturn(response);
 
@@ -232,8 +234,9 @@ class TurnoServiceImplTest {
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
         when(mascotaRepository.findById(10L)).thenReturn(Optional.of(new Mascota()));
         when(veterinarioRepository.findById(1L)).thenReturn(Optional.of(veterinario));
-        when(turnoRepository.existsDistinctByParticipacionesVeterinarioIdAndFechaAndHoraAndIdNot(
-                1L, request.getFecha(), request.getHora(), 1L)).thenReturn(true);
+        Turno turnoExistente = crearTurnoExistente(request.getFecha(), LocalTime.of(10, 15), 30);
+        when(turnoRepository.findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc(1L, request.getFecha()))
+                .thenReturn(List.of(turnoExistente));
 
         assertThrows(TurnoSuperpuestoException.class, () -> turnoService.updateTurno(1L, request));
         verify(turnoRepository, never()).save(any(Turno.class));
@@ -288,6 +291,7 @@ class TurnoServiceImplTest {
                 LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0),
                 "Consulta general",
+                30,
                 10L,
                 List.of(new TurnoVeterinarioRequestDTO(1L, RolVeterinario.PRINCIPAL)));
     }
@@ -299,9 +303,18 @@ class TurnoServiceImplTest {
                 request.getFecha(),
                 request.getHora(),
                 request.getMotivo(),
+                request.getDuracionMinutos(),
                 EstadoTurno.PENDIENTE,
                 "Luna",
                 List.of());
+    }
+
+    private Turno crearTurnoExistente(LocalDate fecha, LocalTime hora, Integer duracionMinutos) {
+        Turno turno = new Turno();
+        turno.setFecha(fecha);
+        turno.setHora(hora);
+        turno.setDuracionMinutos(duracionMinutos);
+        return turno;
     }
 
     private Veterinario crearVeterinarioMock(Long id) {
