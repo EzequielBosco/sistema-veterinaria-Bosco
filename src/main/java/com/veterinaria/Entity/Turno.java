@@ -61,4 +61,7 @@ public class Turno {
 
     @OneToMany(mappedBy = "turno", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participacion> participaciones = new HashSet<>();
+
+    @OneToMany(mappedBy = "turno", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Prescripcion> prescripciones = new HashSet<>();
 }
