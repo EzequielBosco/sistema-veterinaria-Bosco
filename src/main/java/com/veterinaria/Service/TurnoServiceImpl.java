@@ -1,20 +1,27 @@
 package com.veterinaria.Service;
 
+import com.veterinaria.DTO.PrescripcionRequestDTO;
+import com.veterinaria.DTO.PrescripcionResponseDTO;
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
 import com.veterinaria.DTO.TurnoVeterinarioRequestDTO;
 import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 import com.veterinaria.Entity.Mascota;
+import com.veterinaria.Entity.Medicamento;
 import com.veterinaria.Entity.Participacion;
+import com.veterinaria.Entity.Prescripcion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
 import com.veterinaria.Entity.enums.RolVeterinario;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Exception.StockInsuficienteException;
 import com.veterinaria.Exception.TurnoSuperpuestoException;
 import com.veterinaria.Mapper.TurnoMapper;
 import com.veterinaria.Repository.MascotaRepository;
+import com.veterinaria.Repository.MedicamentoRepository;
 import com.veterinaria.Repository.ParticipacionRepository;
+import com.veterinaria.Repository.PrescripcionRepository;
 import com.veterinaria.Repository.TurnoRepository;
 import com.veterinaria.Repository.VeterinarioRepository;
 import org.springframework.stereotype.Service;
@@ -34,6 +41,8 @@ public class TurnoServiceImpl implements TurnoService {
     private final MascotaRepository mascotaRepository;
     private final VeterinarioRepository veterinarioRepository;
     private final ParticipacionRepository participacionRepository;
+    private final MedicamentoRepository medicamentoRepository;
+    private final PrescripcionRepository prescripcionRepository;
     private final TurnoMapper turnoMapper;
 
     public TurnoServiceImpl(
@@ -41,11 +50,15 @@ public class TurnoServiceImpl implements TurnoService {
             MascotaRepository mascotaRepository,
             VeterinarioRepository veterinarioRepository,
             ParticipacionRepository participacionRepository,
+            MedicamentoRepository medicamentoRepository,
+            PrescripcionRepository prescripcionRepository,
             TurnoMapper turnoMapper) {
         this.turnoRepository = turnoRepository;
         this.mascotaRepository = mascotaRepository;
         this.veterinarioRepository = veterinarioRepository;
         this.participacionRepository = participacionRepository;
+        this.medicamentoRepository = medicamentoRepository;
+        this.prescripcionRepository = prescripcionRepository;
         this.turnoMapper = turnoMapper;
     }
 
@@ -84,8 +97,7 @@ public class TurnoServiceImpl implements TurnoService {
         turno.setMascota(mascota);
         asignarParticipaciones(turno, veterinarios);
 
-        Turno turnoGuardado = turnoRepository.save(turno);
-        return turnoMapper.toDto(turnoGuardado);
+        return turnoMapper.toDto(turnoRepository.save(turno));
     }
 
     @Override
@@ -117,6 +129,40 @@ public class TurnoServiceImpl implements TurnoService {
                         .thenComparing(participacion -> participacion.getVeterinario().getId()))
                 .map(this::toTurnoVeterinarioDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PrescripcionResponseDTO> getPrescripcionesByTurno(Long id) {
+        obtenerTurno(id);
+        return prescripcionRepository.findByTurnoId(id).stream()
+                .sorted(Comparator.comparing(p -> p.getMedicamento().getNombre()))
+                .map(this::toPrescripcionResponseDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public PrescripcionResponseDTO asociarMedicamento(Long turnoId, Long medicamentoId, PrescripcionRequestDTO dto) {
+        Turno turno = obtenerTurno(turnoId);
+        Medicamento medicamento = medicamentoRepository.findById(medicamentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un medicamento con id " + medicamentoId));
+
+        if (medicamento.getStock() <= 0) {
+            throw new StockInsuficienteException(
+                    "El medicamento '" + medicamento.getNombre() + "' no tiene stock disponible");
+        }
+
+        Prescripcion prescripcion = new Prescripcion();
+        prescripcion.setTurno(turno);
+        prescripcion.setMedicamento(medicamento);
+        prescripcion.setCantidad(1);
+        prescripcion.setIndicaciones(dto != null ? dto.getIndicaciones() : null);
+
+        medicamento.setStock(medicamento.getStock() - 1);
+        medicamentoRepository.save(medicamento);
+
+        return toPrescripcionResponseDto(prescripcionRepository.save(prescripcion));
     }
 
     @Override
@@ -250,5 +296,16 @@ public class TurnoServiceImpl implements TurnoService {
             return veterinario.getNombre();
         }
         return veterinario.getNombre() + " " + veterinario.getApellido();
+    }
+
+    private PrescripcionResponseDTO toPrescripcionResponseDto(Prescripcion prescripcion) {
+        Medicamento m = prescripcion.getMedicamento();
+        return new PrescripcionResponseDTO(
+                prescripcion.getId(),
+                m.getNombre(),
+                m.getPrincipioActivo(),
+                prescripcion.getCantidad(),
+                m.getPrecioUnitario(),
+                prescripcion.getIndicaciones());
     }
 }

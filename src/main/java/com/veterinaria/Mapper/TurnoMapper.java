@@ -16,13 +16,14 @@ public interface TurnoMapper {
 
     @Mapping(source = "mascota.id",     target = "mascotaId")
     @Mapping(source = "mascota.nombre", target = "mascotaNombre")
-    @Mapping(target = "veterinarios", expression = "java(obtenerVeterinarios(turno))")
+    @Mapping(target = "veterinarios",   expression = "java(obtenerVeterinarios(turno))")
     TurnoResponseDTO toDto(Turno turno);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "estado", ignore = true)
-    @Mapping(target = "mascota", ignore = true)
-    @Mapping(target = "participaciones", ignore = true)
+    @Mapping(target = "id",             ignore = true)
+    @Mapping(target = "estado",         ignore = true)
+    @Mapping(target = "mascota",        ignore = true)
+    @Mapping(target = "participaciones",ignore = true)
+    @Mapping(target = "prescripciones", ignore = true)
     Turno toEntity(TurnoRequestDTO turnoRequestDTO);
 
     List<TurnoResponseDTO> toDtoList(List<Turno> turnos);

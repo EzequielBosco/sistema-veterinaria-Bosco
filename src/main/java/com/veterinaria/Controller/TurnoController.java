@@ -1,5 +1,7 @@
 package com.veterinaria.Controller;
 
+import com.veterinaria.DTO.PrescripcionRequestDTO;
+import com.veterinaria.DTO.PrescripcionResponseDTO;
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
 import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
@@ -82,6 +84,17 @@ public class TurnoController {
         return ResponseEntity.ok(turnoService.getVeterinariosByTurno(id));
     }
 
+    @Operation(summary = "Listar prescripciones de un turno", description = "Retorna los medicamentos prescriptos en un turno junto con la cantidad e indicaciones")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Turno no encontrado",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{id}/medicamentos")
+    public ResponseEntity<List<PrescripcionResponseDTO>> getPrescripcionesByTurno(@PathVariable Long id) {
+        return ResponseEntity.ok(turnoService.getPrescripcionesByTurno(id));
+    }
+
     @Operation(
         summary = "Registrar un nuevo turno",
         description = "Crea un nuevo turno. La fecha y hora deben ser posteriores al momento actual. " +
@@ -100,6 +113,28 @@ public class TurnoController {
     @PostMapping
     public ResponseEntity<TurnoResponseDTO> createTurno(@Valid @RequestBody TurnoRequestDTO turnoRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(turnoService.createTurno(turnoRequestDTO));
+    }
+
+    @Operation(
+        summary = "Agregar prescripción a un turno",
+        description = "Asocia un medicamento al turno creando una prescripción y descuenta una unidad del stock. " +
+            "El cuerpo es opcional y permite incluir indicaciones de administración. " +
+            "Devuelve 422 si el medicamento no tiene stock disponible"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Prescripción registrada exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Turno o medicamento no encontrado",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "422", description = "El medicamento no tiene stock disponible",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{turnoId}/medicamentos/{medicamentoId}")
+    public ResponseEntity<PrescripcionResponseDTO> asociarMedicamento(
+            @PathVariable Long turnoId,
+            @PathVariable Long medicamentoId,
+            @RequestBody(required = false) PrescripcionRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(turnoService.asociarMedicamento(turnoId, medicamentoId, dto));
     }
 
     @Operation(

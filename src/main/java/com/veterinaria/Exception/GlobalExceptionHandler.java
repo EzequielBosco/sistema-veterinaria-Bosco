@@ -61,6 +61,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<ErrorResponse> handleStockInsuficiente(
+            StockInsuficienteException exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(
             NoResourceFoundException exception,
