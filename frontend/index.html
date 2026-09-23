@@ -198,6 +198,7 @@
     <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDuenios">Dueños</button></li>
     <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabMascotas">Mascotas</button></li>
     <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabVeterinarios">Veterinarios</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabMedicamentos">Medicamentos</button></li>
     <li class="nav-item"><button class="nav-link"        data-bs-toggle="tab" data-bs-target="#tabTurnos">Turnos</button></li>
   </ul>
 
@@ -258,6 +259,26 @@
               <tr><th>#</th><th>Nombre</th><th>Apellido</th><th>Matrícula</th><th>Especialidad</th><th>Teléfono</th><th>Email</th><th></th></tr>
             </thead>
             <tbody id="tbodyVeterinarios"><tr><td colspan="8" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TAB MEDICAMENTOS ═════════════════ -->
+    <div class="tab-pane fade" id="tabMedicamentos">
+      <div class="apple-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-title">Medicamentos</span>
+          <button class="btn btn-apple btn-sm" data-bs-toggle="modal" data-bs-target="#modalMedicamento" onclick="abrirModalMedicamento()">
+            + Nuevo medicamento
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Principio activo</th><th>Presentación</th><th>Stock</th><th>Precio unitario</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyMedicamentos"><tr><td colspan="7" class="text-center text-muted py-4">Cargando…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -373,7 +394,7 @@
               <input type="date" class="form-control" id="mFechaNacimiento" required />
             </div>
             <div class="col-12">
-              <label class="form-label">Dueño *</label>
+              <label class="form-label">Dueño * <small class="text-muted">(máximo 5 mascotas por dueño)</small></label>
               <select class="form-select" id="mDuenioId" required>
                 <option value="">Seleccionar dueño…</option>
               </select>
@@ -433,6 +454,100 @@
           <button type="submit" class="btn btn-apple">Guardar</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL MEDICAMENTO ════════════════════════════════ -->
+<div class="modal fade" id="modalMedicamento" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formMedicamento" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalMedicamentoTitulo">Nuevo medicamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="errMedicamento" class="alert alert-danger d-none py-2 small"></div>
+          <input type="hidden" id="medicamentoId" />
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="medNombre" placeholder="Amoxicilina 500mg" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Principio activo *</label>
+              <input type="text" class="form-control" id="medPrincipioActivo" required />
+            </div>
+            <div class="col-4">
+              <label class="form-label">Stock *</label>
+              <input type="number" class="form-control" id="medStock" min="0" value="0" required />
+            </div>
+            <div class="col-4">
+              <label class="form-label">Precio unitario *</label>
+              <input type="number" class="form-control" id="medPrecio" min="0.01" step="0.01" required />
+            </div>
+            <div class="col-4">
+              <label class="form-label">Presentación</label>
+              <select class="form-select" id="medPresentacion">
+                <option value="">—</option>
+                <option value="COMPRIMIDO">Comprimido</option>
+                <option value="CAPSULA">Cápsula</option>
+                <option value="JARABE">Jarabe</option>
+                <option value="INYECTABLE">Inyectable</option>
+                <option value="TOPICO">Tópico</option>
+                <option value="GOTAS">Gotas</option>
+                <option value="SPRAY">Spray</option>
+                <option value="POLVO">Polvo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-apple">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL PRESCRIPCIONES DEL TURNO ════════════════════ -->
+<div class="modal fade" id="modalPrescripciones" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPrescripcionesTitulo">Medicamentos del turno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="prescTurnoId" />
+        <div class="table-responsive mb-3">
+          <table class="table">
+            <thead>
+              <tr><th>Medicamento</th><th>Principio activo</th><th>Cantidad</th><th>Precio unitario</th><th>Indicaciones</th></tr>
+            </thead>
+            <tbody id="tbodyPrescripciones"></tbody>
+          </table>
+        </div>
+
+        <form id="formPrescripcion" novalidate>
+          <div id="errPrescripcion" class="alert alert-danger d-none py-2 small"></div>
+          <div class="row g-2 align-items-end">
+            <div class="col-5">
+              <label class="form-label">Medicamento * <small class="text-muted">(descuenta 1 del stock)</small></label>
+              <select class="form-select" id="prescMedicamentoId" required></select>
+            </div>
+            <div class="col-5">
+              <label class="form-label">Indicaciones</label>
+              <input type="text" class="form-control" id="prescIndicaciones" placeholder="Una vez al día por 7 días" />
+            </div>
+            <div class="col-2">
+              <button type="submit" class="btn btn-apple w-100">Agregar</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -844,6 +959,171 @@ async function eliminarVeterinario(id) {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
+   MEDICAMENTOS
+════════════════════════════════════════════════════════════════════════════════ */
+function formatearPrecio(v) {
+  if (v == null) return "—";
+  return "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function cargarMedicamentos() {
+  try {
+    const lista = await apiFetch(`${API}/medicamentos`);
+    renderMedicamentos(lista);
+  } catch(e) {
+    document.getElementById("tbodyMedicamentos").innerHTML =
+      `<tr><td colspan="7" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+function renderMedicamentos(lista) {
+  const tbody = document.getElementById("tbodyMedicamentos");
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Sin medicamentos registrados.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(m => `
+    <tr>
+      <td class="text-muted">${m.id}</td>
+      <td>${esc(m.nombre)}</td>
+      <td>${esc(m.principioActivo)}</td>
+      <td>${esc(m.presentacion)}</td>
+      <td>${m.stock > 0 ? m.stock : `<span class="text-danger fw-semibold">Sin stock</span>`}</td>
+      <td>${formatearPrecio(m.precioUnitario)}</td>
+      <td class="text-end">
+        <button class="btn btn-outline-primary btn-icon me-1" onclick="editarMedicamento(${m.id})">Editar</button>
+        <button class="btn btn-outline-danger btn-icon" onclick="eliminarMedicamento(${m.id})">Eliminar</button>
+      </td>
+    </tr>`).join("");
+}
+
+function abrirModalMedicamento() {
+  document.getElementById("modalMedicamentoTitulo").textContent = "Nuevo medicamento";
+  document.getElementById("formMedicamento").reset();
+  document.getElementById("medicamentoId").value = "";
+  ocultarError("errMedicamento");
+}
+
+async function editarMedicamento(id) {
+  try {
+    const m = await apiFetch(`${API}/medicamentos/${id}`);
+    document.getElementById("modalMedicamentoTitulo").textContent = "Editar medicamento";
+    document.getElementById("medicamentoId").value      = m.id;
+    document.getElementById("medNombre").value          = m.nombre          ?? "";
+    document.getElementById("medPrincipioActivo").value = m.principioActivo ?? "";
+    document.getElementById("medStock").value           = m.stock           ?? 0;
+    document.getElementById("medPrecio").value          = m.precioUnitario  ?? "";
+    document.getElementById("medPresentacion").value    = m.presentacion    ?? "";
+    ocultarError("errMedicamento");
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalMedicamento")).show();
+  } catch(e) { toast(e.message, false); }
+}
+
+document.getElementById("formMedicamento").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errMedicamento");
+  const id = document.getElementById("medicamentoId").value;
+  const stock  = document.getElementById("medStock").value;
+  const precio = document.getElementById("medPrecio").value;
+  const body = {
+    nombre:          document.getElementById("medNombre").value.trim(),
+    principioActivo: document.getElementById("medPrincipioActivo").value.trim(),
+    stock:           stock  === "" ? null : Number(stock),
+    precioUnitario:  precio === "" ? null : Number(precio),
+    presentacion:    document.getElementById("medPresentacion").value || null
+  };
+  try {
+    if (id) {
+      await apiFetch(`${API}/medicamentos/${id}`, { method: "PUT", body: JSON.stringify(body) });
+      toast("Medicamento actualizado correctamente.");
+    } else {
+      await apiFetch(`${API}/medicamentos`, { method: "POST", body: JSON.stringify(body) });
+      toast("Medicamento registrado correctamente.");
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modalMedicamento")).hide();
+    await cargarMedicamentos();
+  } catch(e) { mostrarError("errMedicamento", e.message); }
+});
+
+async function eliminarMedicamento(id) {
+  if (!confirm("¿Eliminar este medicamento?")) return;
+  try {
+    await apiFetch(`${API}/medicamentos/${id}`, { method: "DELETE" });
+    toast("Medicamento eliminado.");
+    await cargarMedicamentos();
+  } catch(e) { toast(e.message, false); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   PRESCRIPCIONES DE UN TURNO
+   El listado de turnos no incluye medicamentos: se consultan aparte en
+   GET /turnos/{id}/medicamentos
+════════════════════════════════════════════════════════════════════════════════ */
+async function cargarPrescripciones(turnoId) {
+  const tbody = document.getElementById("tbodyPrescripciones");
+  try {
+    const lista = await apiFetch(`${API}/turnos/${turnoId}/medicamentos`);
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">El turno no tiene medicamentos recetados.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = lista.map(p => `
+      <tr>
+        <td>${esc(p.nombre)}</td>
+        <td>${esc(p.principioActivo)}</td>
+        <td>${esc(p.cantidad)}</td>
+        <td>${formatearPrecio(p.precioUnitario)}</td>
+        <td>${esc(p.indicaciones)}</td>
+      </tr>`).join("");
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">${esc(e.message)}</td></tr>`;
+  }
+}
+
+async function poblarSelectMedicamentos() {
+  const sel = document.getElementById("prescMedicamentoId");
+  sel.innerHTML = `<option value="">Seleccionar medicamento…</option>`;
+  try {
+    const lista = await apiFetch(`${API}/medicamentos`);
+    lista.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = `${m.nombre} (stock: ${m.stock})`;
+      sel.appendChild(opt);
+    });
+  } catch(e) { /* silencioso */ }
+}
+
+async function verPrescripciones(turnoId) {
+  document.getElementById("modalPrescripcionesTitulo").textContent = `Medicamentos del turno #${turnoId}`;
+  document.getElementById("prescTurnoId").value = turnoId;
+  document.getElementById("formPrescripcion").reset();
+  document.getElementById("tbodyPrescripciones").innerHTML =
+    `<tr><td colspan="5" class="text-center text-muted py-3">Cargando…</td></tr>`;
+  ocultarError("errPrescripcion");
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("modalPrescripciones")).show();
+  await Promise.all([cargarPrescripciones(turnoId), poblarSelectMedicamentos()]);
+}
+
+document.getElementById("formPrescripcion").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  ocultarError("errPrescripcion");
+  const turnoId = document.getElementById("prescTurnoId").value;
+  const medicamentoId = document.getElementById("prescMedicamentoId").value;
+  if (!medicamentoId) {
+    mostrarError("errPrescripcion", "Seleccione un medicamento."); return;
+  }
+  const body = { indicaciones: document.getElementById("prescIndicaciones").value.trim() || null };
+  try {
+    await apiFetch(`${API}/turnos/${turnoId}/medicamentos/${medicamentoId}`,
+      { method: "POST", body: JSON.stringify(body) });
+    toast("Medicamento agregado al turno.");
+    document.getElementById("formPrescripcion").reset();
+    await Promise.all([cargarPrescripciones(turnoId), poblarSelectMedicamentos()]);
+  } catch(e) { mostrarError("errPrescripcion", e.message); }  // ej. 422 sin stock
+});
+
+/* ════════════════════════════════════════════════════════════════════════════════
    TURNOS
 ════════════════════════════════════════════════════════════════════════════════ */
 async function cargarTurnos() {
@@ -871,7 +1151,8 @@ function renderTurnos(lista) {
       <td>${esc(t.motivo)}</td>
       <td>${t.duracionMinutos} min</td>
       <td><span class="badge-estado badge-${t.estado}">${t.estado}</span></td>
-      <td class="text-end">
+      <td class="text-end text-nowrap">
+        <button class="btn btn-outline-secondary btn-icon me-1" onclick="verPrescripciones(${t.id})">Medicamentos</button>
         <button class="btn btn-outline-primary btn-icon me-1" onclick="editarTurno(${t.id})">Editar</button>
         <button class="btn btn-outline-danger btn-icon" onclick="eliminarTurno(${t.id})">Eliminar</button>
       </td>
@@ -1018,6 +1299,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const target = e.target.getAttribute("data-bs-target");
       if (target === "#tabMascotas")     cargarMascotas();
       if (target === "#tabVeterinarios") cargarVeterinarios();
+      if (target === "#tabMedicamentos") cargarMedicamentos();
       if (target === "#tabTurnos")       cargarTurnos();
     });
   });

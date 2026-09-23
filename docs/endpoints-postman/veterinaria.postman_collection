@@ -295,7 +295,7 @@
             "1"
           ]
         },
-        "description": "Actualizar datos de una mascota."
+        "description": "Actualizar datos de una mascota. Si se cambia el duenioId y el nuevo dueño ya tiene 5 mascotas activas, devuelve 422 Unprocessable Entity."
       },
       "response": []
     },
@@ -377,7 +377,7 @@
             "mascotas"
           ]
         },
-        "description": "Crear una mascota para el duenio indicado. Requiere nombre, especie, sexo y fechaNacimiento no futura."
+        "description": "Crear una mascota para el duenio indicado. Requiere nombre, especie, sexo y fechaNacimiento no futura. Si el dueño ya tiene 5 mascotas activas, devuelve 422 Unprocessable Entity con un ErrorResponse descriptivo."
       },
       "response": []
     },
@@ -541,6 +541,142 @@
       "response": []
     },
     {
+      "name": "Listar medicamentos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/medicamentos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "medicamentos"
+          ]
+        },
+        "description": "Listar todos los medicamentos."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener medicamento por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/medicamentos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "medicamentos",
+            "1"
+          ]
+        },
+        "description": "Obtener un medicamento por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear medicamento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Amoxicilina 500mg\",\r\n  \"principioActivo\": \"Amoxicilina\",\r\n  \"stock\": 100,\r\n  \"precioUnitario\": 1500.00,\r\n  \"presentacion\": \"COMPRIMIDO\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/medicamentos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "medicamentos"
+          ]
+        },
+        "description": "Crear un medicamento. Requiere nombre, principioActivo, stock (>= 0) y precioUnitario (> 0). presentacion es opcional: COMPRIMIDO, CAPSULA, JARABE, INYECTABLE, TOPICO, GOTAS, SPRAY o POLVO."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar medicamento",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Amoxicilina 500mg\",\r\n  \"principioActivo\": \"Amoxicilina\",\r\n  \"stock\": 80,\r\n  \"precioUnitario\": 1750.00,\r\n  \"presentacion\": \"COMPRIMIDO\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/medicamentos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "medicamentos",
+            "1"
+          ]
+        },
+        "description": "Actualizar un medicamento por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar medicamento",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/medicamentos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "medicamentos",
+            "1"
+          ]
+        },
+        "description": "Eliminar un medicamento por ID."
+      },
+      "response": []
+    },
+    {
       "name": "Listar turnos",
       "request": {
         "method": "GET",
@@ -638,6 +774,67 @@
       "response": []
     },
     {
+      "name": "Listar medicamentos de un turno",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1/medicamentos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1",
+            "medicamentos"
+          ]
+        },
+        "description": "Listar los medicamentos recetados en un turno (prescripciones) con cantidad, precio unitario e indicaciones. Es el único endpoint de turnos que devuelve medicamentos."
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar medicamento a un turno",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"indicaciones\": \"Administrar en ayunas, una vez al día por 7 días\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/turnos/1/medicamentos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "turnos",
+            "1",
+            "medicamentos",
+            "1"
+          ]
+        },
+        "description": "Asocia un medicamento al turno creando una prescripción y descuenta una unidad del stock. El cuerpo es opcional. Devuelve 404 si el turno o el medicamento no existen y 422 si el medicamento no tiene stock."
+      },
+      "response": []
+    },
+    {
       "name": "Crear turno",
       "request": {
         "method": "POST",
@@ -668,7 +865,7 @@
             "turnos"
           ]
         },
-        "description": "Crear un turno. Requiere fecha y hora futuras, motivo, mascota existente y veterinarios existentes. Cada veterinario debe indicar su rol: PRINCIPAL, ASISTENTE o CONSULTOR. Debe haber exactamente un PRINCIPAL."
+        "description": "Crear un turno. Requiere fecha y hora futuras, motivo, mascota existente y veterinarios existentes. Cada veterinario debe indicar su rol: PRINCIPAL, ASISTENTE o CONSULTOR. Debe haber exactamente un PRINCIPAL. Si algún veterinario ya tiene un turno que se superpone, devuelve 409 Conflict indicando el ID y horario del turno conflictivo. La respuesta no incluye medicamentos (ver GET /api/turnos/{id}/medicamentos)."
       },
       "response": []
     },
@@ -704,7 +901,7 @@
             "1"
           ]
         },
-        "description": "Actualizar un turno por ID."
+        "description": "Actualizar un turno por ID. Si algún veterinario ya tiene otro turno que se superpone, devuelve 409 Conflict indicando el ID y horario del turno conflictivo."
       },
       "response": []
     },
