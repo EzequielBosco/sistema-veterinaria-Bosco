@@ -117,22 +117,24 @@ public class TurnoController {
 
     @Operation(
         summary = "Agregar prescripción a un turno",
-        description = "Asocia un medicamento al turno creando una prescripción y descuenta una unidad del stock. " +
-            "El cuerpo es opcional y permite incluir indicaciones de administración. " +
-            "Devuelve 422 si el medicamento no tiene stock disponible"
+        description = "Asocia un medicamento al turno creando una prescripción y descuenta del stock la cantidad recetada. " +
+            "El cuerpo es opcional: permite indicar la cantidad (por defecto 1) y las indicaciones de administración. " +
+            "Devuelve 422 si el stock disponible es menor a la cantidad solicitada"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Prescripción registrada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "La cantidad es menor a 1",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Turno o medicamento no encontrado",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-        @ApiResponse(responseCode = "422", description = "El medicamento no tiene stock disponible",
+        @ApiResponse(responseCode = "422", description = "Stock insuficiente para la cantidad solicitada",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/{turnoId}/medicamentos/{medicamentoId}")
     public ResponseEntity<PrescripcionResponseDTO> asociarMedicamento(
             @PathVariable Long turnoId,
             @PathVariable Long medicamentoId,
-            @RequestBody(required = false) PrescripcionRequestDTO dto) {
+            @Valid @RequestBody(required = false) PrescripcionRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(turnoService.asociarMedicamento(turnoId, medicamentoId, dto));
     }

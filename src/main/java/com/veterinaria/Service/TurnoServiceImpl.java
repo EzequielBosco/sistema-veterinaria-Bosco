@@ -149,18 +149,24 @@ public class TurnoServiceImpl implements TurnoService {
         Medicamento medicamento = medicamentoRepository.findById(medicamentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un medicamento con id " + medicamentoId));
 
-        if (medicamento.getStock() <= 0) {
+        int cantidad = dto != null && dto.getCantidad() != null ? dto.getCantidad() : 1;
+        if (cantidad < 1) {
+            throw new BadRequestException("La cantidad debe ser al menos 1");
+        }
+
+        if (medicamento.getStock() < cantidad) {
             throw new StockInsuficienteException(
-                    "El medicamento '" + medicamento.getNombre() + "' no tiene stock disponible");
+                    "Stock insuficiente para el medicamento '" + medicamento.getNombre()
+                            + "': se solicitaron " + cantidad + " unidades y hay " + medicamento.getStock() + " disponibles");
         }
 
         Prescripcion prescripcion = new Prescripcion();
         prescripcion.setTurno(turno);
         prescripcion.setMedicamento(medicamento);
-        prescripcion.setCantidad(1);
+        prescripcion.setCantidad(cantidad);
         prescripcion.setIndicaciones(dto != null ? dto.getIndicaciones() : null);
 
-        medicamento.setStock(medicamento.getStock() - 1);
+        medicamento.setStock(medicamento.getStock() - cantidad);
         medicamentoRepository.save(medicamento);
 
         return toPrescripcionResponseDto(prescripcionRepository.save(prescripcion));

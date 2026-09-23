@@ -1,21 +1,28 @@
 package com.veterinaria.Service;
 
+import com.veterinaria.DTO.PrescripcionRequestDTO;
+import com.veterinaria.DTO.PrescripcionResponseDTO;
 import com.veterinaria.DTO.TurnoRequestDTO;
 import com.veterinaria.DTO.TurnoResponseDTO;
 import com.veterinaria.DTO.TurnoVeterinarioResponseDTO;
 import com.veterinaria.DTO.TurnoVeterinarioRequestDTO;
 import com.veterinaria.Entity.Mascota;
+import com.veterinaria.Entity.Medicamento;
 import com.veterinaria.Entity.Participacion;
+import com.veterinaria.Entity.Prescripcion;
 import com.veterinaria.Entity.Turno;
 import com.veterinaria.Entity.Veterinario;
 import com.veterinaria.Entity.enums.EstadoTurno;
 import com.veterinaria.Entity.enums.RolVeterinario;
 import com.veterinaria.Exception.BadRequestException;
 import com.veterinaria.Exception.ResourceNotFoundException;
+import com.veterinaria.Exception.StockInsuficienteException;
 import com.veterinaria.Exception.TurnoSuperpuestoException;
 import com.veterinaria.Mapper.TurnoMapper;
 import com.veterinaria.Repository.MascotaRepository;
+import com.veterinaria.Repository.MedicamentoRepository;
 import com.veterinaria.Repository.ParticipacionRepository;
+import com.veterinaria.Repository.PrescripcionRepository;
 import com.veterinaria.Repository.TurnoRepository;
 import com.veterinaria.Repository.VeterinarioRepository;
 import org.junit.jupiter.api.Test;
@@ -25,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -53,6 +61,12 @@ class TurnoServiceImplTest {
 
     @Mock
     private ParticipacionRepository participacionRepository;
+
+    @Mock
+    private MedicamentoRepository medicamentoRepository;
+
+    @Mock
+    private PrescripcionRepository prescripcionRepository;
 
     @Mock
     private TurnoMapper turnoMapper;
@@ -281,6 +295,60 @@ class TurnoServiceImplTest {
     }
 
     @Test
+    void asociarMedicamento_conCantidad_descuentaEsaCantidadDelStock() {
+        Medicamento medicamento = crearMedicamento(10);
+        when(turnoRepository.findById(1L)).thenReturn(Optional.of(new Turno()));
+        when(medicamentoRepository.findById(5L)).thenReturn(Optional.of(medicamento));
+        when(prescripcionRepository.save(any(Prescripcion.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        PrescripcionResponseDTO resultado = turnoService.asociarMedicamento(
+                1L, 5L, new PrescripcionRequestDTO(3, "Cada 8 horas"));
+
+        assertThat(resultado.getCantidad()).isEqualTo(3);
+        assertThat(resultado.getIndicaciones()).isEqualTo("Cada 8 horas");
+        assertThat(medicamento.getStock()).isEqualTo(7);
+        verify(medicamentoRepository).save(medicamento);
+    }
+
+    @Test
+    void asociarMedicamento_sinBody_usaCantidadUno() {
+        Medicamento medicamento = crearMedicamento(10);
+        when(turnoRepository.findById(1L)).thenReturn(Optional.of(new Turno()));
+        when(medicamentoRepository.findById(5L)).thenReturn(Optional.of(medicamento));
+        when(prescripcionRepository.save(any(Prescripcion.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        PrescripcionResponseDTO resultado = turnoService.asociarMedicamento(1L, 5L, null);
+
+        assertThat(resultado.getCantidad()).isEqualTo(1);
+        assertThat(medicamento.getStock()).isEqualTo(9);
+    }
+
+    @Test
+    void asociarMedicamento_conCantidadMayorAlStock_lanzaStockInsuficienteExceptionYNoGuarda() {
+        Medicamento medicamento = crearMedicamento(2);
+        when(turnoRepository.findById(1L)).thenReturn(Optional.of(new Turno()));
+        when(medicamentoRepository.findById(5L)).thenReturn(Optional.of(medicamento));
+
+        StockInsuficienteException exception = assertThrows(StockInsuficienteException.class,
+                () -> turnoService.asociarMedicamento(1L, 5L, new PrescripcionRequestDTO(3, null)));
+
+        assertThat(exception.getMessage()).contains("se solicitaron 3").contains("hay 2");
+        assertThat(medicamento.getStock()).isEqualTo(2);
+        verify(prescripcionRepository, never()).save(any(Prescripcion.class));
+        verify(medicamentoRepository, never()).save(any(Medicamento.class));
+    }
+
+    @Test
+    void asociarMedicamento_conCantidadCero_lanzaBadRequestException() {
+        when(turnoRepository.findById(1L)).thenReturn(Optional.of(new Turno()));
+        when(medicamentoRepository.findById(5L)).thenReturn(Optional.of(crearMedicamento(10)));
+
+        assertThrows(BadRequestException.class,
+                () -> turnoService.asociarMedicamento(1L, 5L, new PrescripcionRequestDTO(0, null)));
+        verify(prescripcionRepository, never()).save(any(Prescripcion.class));
+    }
+
+    @Test
     void deleteTurno_cuandoExiste_eliminaTurno() {
         Turno turno = new Turno();
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
@@ -329,6 +397,15 @@ class TurnoServiceImplTest {
         turno.setHora(hora);
         turno.setDuracionMinutos(duracionMinutos);
         return turno;
+    }
+
+    private Medicamento crearMedicamento(int stock) {
+        Medicamento medicamento = new Medicamento();
+        medicamento.setNombre("Amoxicilina 500mg");
+        medicamento.setPrincipioActivo("Amoxicilina");
+        medicamento.setStock(stock);
+        medicamento.setPrecioUnitario(new BigDecimal("1500.00"));
+        return medicamento;
     }
 
     private Veterinario crearVeterinarioMock(Long id) {

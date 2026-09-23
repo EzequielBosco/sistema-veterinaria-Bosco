@@ -808,7 +808,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"indicaciones\": \"Administrar en ayunas, una vez al día por 7 días\"\r\n}",
+          "raw": "{\r\n  \"cantidad\": 2,\r\n  \"indicaciones\": \"Administrar en ayunas, una vez al día por 7 días\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -830,7 +830,7 @@
             "1"
           ]
         },
-        "description": "Asocia un medicamento al turno creando una prescripción y descuenta una unidad del stock. El cuerpo es opcional. Devuelve 404 si el turno o el medicamento no existen y 422 si el medicamento no tiene stock."
+        "description": "Asocia un medicamento al turno creando una prescripción y descuenta del stock la cantidad recetada. El cuerpo es opcional: 'cantidad' (>= 1, por defecto 1) e 'indicaciones'. Devuelve 400 si la cantidad es menor a 1, 404 si el turno o el medicamento no existen y 422 si el stock disponible es menor a la cantidad solicitada."
       },
       "response": []
     },
