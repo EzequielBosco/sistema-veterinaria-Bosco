@@ -256,3 +256,52 @@ El proyecto incluye tests unitarios e de integración para controllers y servici
 **Cobertura:**
 - `Controller/` — tests con MockMvc que validan códigos HTTP y respuestas JSON
 - `Service/` — tests con Mockito que validan lógica de negocio y excepciones
+
+---
+
+## Parcial 1 — Decisiones de diseño
+
+### Relación Turno–Medicamento
+
+Modelé la relación como un muchos a muchos: en un turno se pueden recetar varios medicamentos y un mismo medicamento aparece en muchos turnos. En lugar de usar un `@ManyToMany` directo, armé una entidad intermedia `Prescripcion`, con un `@ManyToOne` hacia `Turno` y otro hacia `Medicamento`. La razón principal es que la relación tiene datos propios que no van en ninguna de las otras entidades: la `cantidad` recetada y las `indicaciones` de administración. Además ya venía usando el mismo patrón con `Participacion` entre `Turno` y `Veterinario` (que guarda el `rol`), así que mantuve la consistencia del modelo. 
+
+### Validación de stock
+
+El control de stock lo hice en la capa de servicio, dentro de `TurnoServiceImpl.asociarMedicamento`, que está marcado con `@Transactional`. Primero busco el turno y el medicamento (si alguno no existe respondo 404), y después tomo la cantidad del body; si no viene, uso 1 por defecto. Antes de crear la prescripción comparo el stock actual del medicamento contra la cantidad pedida, y si no alcanza lanzo `StockInsuficienteException`. El `GlobalExceptionHandler` traduce esa excepción a un 422 con un `ErrorResponse` que dice cuántas unidades se pidieron y cuántas hay disponibles. Si el stock alcanza, guardo la prescripción con esa cantidad y descuento exactamente esas unidades del medicamento dentro de la misma transacción, así nunca queda una prescripción guardada sin su descuento. 
+
+### Solapamiento
+
+Para detectar solapamientos uso la consulta derivada `findDistinctByParticipacionesVeterinarioIdAndFechaOrderByHoraAsc`, que hace un join con `participaciones` y trae todos los turnos de un veterinario en la fecha del turno nuevo. No hice solo la comparación de la hora exacta, porque dos turnos pueden pisarse aunque arranquen a horas distintas (por ejemplo 10:00 de 30 minutos y otro a las 10:15). Por eso cada turno tiene el duración minutos y se toma como `[hora, hora + duracionMinutos)`, considero que hay conflicto cuando `inicioExistente < finNuevo` y `inicioNuevo < finExistente`. Cuando encuentro un conflicto lanzo `TurnoSuperpuestoException`, que se devuelve como 409 indicando el ID del turno conflictivo, su fecha y su horario de inicio y fin.
+
+### Cupo de mascotas
+
+El límite de 5 mascotas por dueño lo controlo en `MascotaServiceImpl` con una constante `MAX_MASCOTAS_POR_DUENIO`. Para contar uso el método `countByDuenioId` en `MascotaRepository`, que se traduce en un `SELECT COUNT(*)` sobre `mascotas` filtrando por `id_duenio`. En cuanto al criterio de "mascotas activas", la entidad `Mascota` no tiene un campo de estado y el borrado es físico (pensé la implementación de estados en todas las entidades y implementar un delete lógico pero me llevaba mucho tiempo para el parcial), así que toda mascota que existe en la base la considero activa. Si el dueño ya tiene 5, lanzo `CupoMascotasExcedidoException`, que se devuelve como 422 con un mensaje que indica el dueño, cuántas mascotas tiene y cuál es el límite. Además de validar al registrar una mascota, también valido cuando se edita una mascota y se le cambia el dueño, porque si no se podía esquivar el límite transfiriendo mascotas.
+
+### Decisión más difícil
+
+Lo más difícil de todo fue definir la entidad intermedia de prescripción porque me llevo un tiempo pensarla sin empezar a desarrollar, tuve que asegurarme de que todos los aspectos de la relación entre turnos y medicamentos estuvieran bien modelados. También porque había pensado en que el endpoint general de Listar los turnos iba a devolver la lista de medicamentos, hasta que vi el endpoint específico que se planteaba en el parcial y me di cuenta de que no era necesario porque si alguien necesita la lista de turnos, no deberían estar los medicamentos prescriptos tan a la vista.
+
+### Esquema de base de datos
+
+Para crear las tablas nuevas uso `spring.jpa.hibernate.ddl-auto=update`, sin scripts de migración. El cambio de este parcial solo agrega las tablas `medicamentos` y `prescripciones` (con las FKs `id_turno` e `id_medicamento`) y no modifica ni elimina columnas de las tablas existentes. Ese es justamente el caso que `update` resuelve bien, porque al reiniciar la aplicación una base existente se actualiza sola sin perder datos.
+
+### Endpoints nuevos
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/medicamentos` | Listar todos los medicamentos |
+| GET | `/medicamentos/{id}` | Obtener medicamento por ID |
+| POST | `/medicamentos` | Registrar nuevo medicamento |
+| PUT | `/medicamentos/{id}` | Actualizar medicamento |
+| DELETE | `/medicamentos/{id}` | Eliminar medicamento |
+| GET | `/turnos/{id}/medicamentos` | Listar los medicamentos recetados en un turno |
+| POST | `/turnos/{turnoId}/medicamentos/{medicamentoId}` | Recetar un medicamento en un turno. Body opcional: `cantidad` (por defecto 1) e `indicaciones`. Descuenta la cantidad del stock |
+
+Códigos de respuesta nuevos o ampliados:
+
+| Código | Caso |
+|---|---|
+| `409` | Turno superpuesto: el mensaje indica el ID y el horario del turno conflictivo |
+| `422` | Stock insuficiente para la cantidad recetada, o dueño con el cupo de 5 mascotas completo |
+
+En el frontend agregué la pestaña **Medicamentos** y, en cada turno, un botón **Medicamentos** que muestra lo recetado y permite recetar indicando cantidad e indicaciones.
